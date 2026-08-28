@@ -8,7 +8,7 @@
  */
 declare(strict_types=1);
 
-namespace Commerce\ImportMonitor\Test\Behaviour\Fake;
+namespace Commerce\ImportMonitor\Test\Support;
 
 use Commerce\ImportMonitor\Api\Data\AlertInterface;
 use Commerce\ImportMonitor\Model\ResourceModel\Alert as AlertResource;

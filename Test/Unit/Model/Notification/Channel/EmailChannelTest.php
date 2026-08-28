@@ -15,7 +15,7 @@ use Commerce\ImportMonitor\Model\Config;
 use Commerce\ImportMonitor\Model\Notification\AlertMessage;
 use Commerce\ImportMonitor\Model\Notification\AlertMessageHtmlRenderer;
 use Commerce\ImportMonitor\Model\Notification\Channel\EmailChannel;
-use Commerce\ImportMonitor\Test\Unit\Fake\RealEscaper;
+use Commerce\ImportMonitor\Test\Support\RealEscaper;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Mail\Template\TransportBuilder;

@@ -8,7 +8,7 @@
  */
 declare(strict_types=1);
 
-namespace Commerce\ImportMonitor\Test\Unit\Fake;
+namespace Commerce\ImportMonitor\Test\Support;
 
 use Magento\Framework\Escaper;
 use Magento\Framework\Translate\InlineInterface;

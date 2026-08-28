@@ -5,7 +5,7 @@
  */
 declare(strict_types=1);
 
-namespace Commerce\ImportMonitor\Test\Unit\Fake;
+namespace Commerce\ImportMonitor\Test\Support;
 
 use Commerce\ImportMonitor\Model\Salability\Magento\ProductStateLoader;
 use Commerce\ImportMonitor\Model\Salability\ProductState;

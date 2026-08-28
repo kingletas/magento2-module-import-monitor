@@ -21,7 +21,7 @@ use Commerce\ImportMonitor\Model\Config;
 use Commerce\ImportMonitor\Model\ImportMonitor;
 use Commerce\ImportMonitor\Model\Notification\AlertMessage;
 use Commerce\ImportMonitor\Model\Notification\NotificationDispatcher;
-use Commerce\ImportMonitor\Test\Behaviour\Fake\InMemoryAlerts;
+use Commerce\ImportMonitor\Test\Support\InMemoryAlerts;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\Encryption\EncryptorInterface;

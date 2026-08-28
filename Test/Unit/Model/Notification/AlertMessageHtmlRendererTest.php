@@ -12,7 +12,7 @@ namespace Commerce\ImportMonitor\Test\Unit\Model\Notification;
 
 use Commerce\ImportMonitor\Model\Notification\AlertMessage;
 use Commerce\ImportMonitor\Model\Notification\AlertMessageHtmlRenderer;
-use Commerce\ImportMonitor\Test\Unit\Fake\RealEscaper;
+use Commerce\ImportMonitor\Test\Support\RealEscaper;
 use PHPUnit\Framework\TestCase;
 
 /**

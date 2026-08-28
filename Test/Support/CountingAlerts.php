@@ -8,9 +8,9 @@
  */
 declare(strict_types=1);
 
-namespace Commerce\ImportMonitor\Test\Performance\Fake;
+namespace Commerce\ImportMonitor\Test\Support;
 
-use Commerce\ImportMonitor\Test\Behaviour\Fake\InMemoryAlerts;
+use Commerce\ImportMonitor\Test\Support\InMemoryAlerts;
 use Commerce\ImportMonitor\Test\Performance\AlertingCostTest;
 
 /**

@@ -12,8 +12,9 @@ use Commerce\ImportMonitor\Model\Salability\DiscrepancyDescriber;
 use Commerce\ImportMonitor\Model\Salability\ProductState;
 use Commerce\ImportMonitor\Model\Salability\Reconciler;
 use Commerce\ImportMonitor\Model\Salability\SupplierSku;
-use Commerce\ImportMonitor\Test\Unit\Fake\ScriptedFeedReader;
-use Commerce\ImportMonitor\Test\Unit\Fake\ScriptedStateLoader;
+use Commerce\ImportMonitor\Test\Support\ScriptedStateLoader;
+use Generator;
+use Commerce\ImportMonitor\Api\SupplierFeedReaderInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -100,7 +101,7 @@ class ReconcilerTest extends TestCase
 
     public function testAnEmptyFeedIsReportedAsInconclusiveRatherThanAgreement(): void
     {
-        $result = $this->reconciler(new ScriptedFeedReader([]), new ScriptedStateLoader())
+        $result = $this->reconciler($this->feed(0), new ScriptedStateLoader())
             ->reconcile('feed.csv');
 
         $this->assertSame(0, $result->read);
@@ -109,7 +110,7 @@ class ReconcilerTest extends TestCase
     }
 
     private function reconciler(
-        ScriptedFeedReader $feed,
+        SupplierFeedReaderInterface $feed,
         ScriptedStateLoader $loader,
         ?LoggerInterface $logger = null,
         int $chunkSize = 100
@@ -123,7 +124,7 @@ class ReconcilerTest extends TestCase
         );
     }
 
-    private function feed(int $count): ScriptedFeedReader
+    private function feed(int $count): SupplierFeedReaderInterface
     {
         $skus = [];
 
@@ -131,7 +132,12 @@ class ReconcilerTest extends TestCase
             $skus[] = new SupplierSku('SKU-' . $i, 'A', 'A', 5.0);
         }
 
-        return new ScriptedFeedReader($skus);
+        $feed = $this->createMock(SupplierFeedReaderInterface::class);
+        $feed->method('read')->willReturnCallback(static function () use ($skus): Generator {
+            yield from $skus;
+        });
+
+        return $feed;
     }
 
     /**
