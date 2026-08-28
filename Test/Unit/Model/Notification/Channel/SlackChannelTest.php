@@ -14,8 +14,8 @@ use Commerce\ImportMonitor\Api\AlertChannelInterface;
 use Commerce\ImportMonitor\Model\Config;
 use Commerce\ImportMonitor\Model\Notification\AlertMessage;
 use Commerce\ImportMonitor\Model\Notification\Channel\SlackChannel;
-use Commerce\ImportMonitor\Test\Unit\Fake\ArrayScopeConfig;
 use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\HTTP\Client\CurlFactory;
@@ -193,7 +193,7 @@ class SlackChannelTest extends TestCase
         );
 
         $config = new Config(
-            new ArrayScopeConfig([
+            $this->scopeConfig([
                 'test_importmonitor/slack/enabled' => $enabled ? '1' : '0',
                 'test_importmonitor/slack/token' => $token,
                 'test_importmonitor/slack/channel' => $channel,
@@ -228,5 +228,21 @@ class SlackChannelTest extends TestCase
         $factory->method('create')->willReturn($curl);
 
         return $factory;
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    private function scopeConfig(array $values): ScopeConfigInterface
+    {
+        $scopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $scopeConfig->method('getValue')->willReturnCallback(
+            static fn (string $path): mixed => $values[$path] ?? null
+        );
+        $scopeConfig->method('isSetFlag')->willReturnCallback(
+            static fn (string $path): bool => !in_array($values[$path] ?? null, [null, '', '0', 0, false], true)
+        );
+
+        return $scopeConfig;
     }
 }

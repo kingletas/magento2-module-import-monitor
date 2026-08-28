@@ -13,8 +13,8 @@ namespace Commerce\ImportMonitor\Test\Unit\Cron;
 use Commerce\ImportMonitor\Cron\PurgeResolvedAlerts;
 use Commerce\ImportMonitor\Model\Config;
 use Commerce\ImportMonitor\Model\ResourceModel\Alert as AlertResource;
-use Commerce\ImportMonitor\Test\Unit\Fake\ArrayScopeConfig;
 use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -128,7 +128,7 @@ class PurgeResolvedAlertsTest extends TestCase
         }
 
         $config = new Config(
-            new ArrayScopeConfig($values),
+            $this->scopeConfig($values),
             'test_importmonitor',
             $this->createMock(EncryptorInterface::class)
         );
@@ -143,5 +143,21 @@ class PurgeResolvedAlertsTest extends TestCase
         );
 
         return new PurgeResolvedAlerts($this->alertResource, $config, $dateTime, $this->logger);
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    private function scopeConfig(array $values): ScopeConfigInterface
+    {
+        $scopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $scopeConfig->method('getValue')->willReturnCallback(
+            static fn (string $path): mixed => $values[$path] ?? null
+        );
+        $scopeConfig->method('isSetFlag')->willReturnCallback(
+            static fn (string $path): bool => !in_array($values[$path] ?? null, [null, '', '0', 0, false], true)
+        );
+
+        return $scopeConfig;
     }
 }

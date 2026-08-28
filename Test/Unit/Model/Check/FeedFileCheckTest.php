@@ -13,8 +13,8 @@ namespace Commerce\ImportMonitor\Test\Unit\Model\Check;
 use Commerce\ImportMonitor\Api\ImportCheckInterface;
 use Commerce\ImportMonitor\Model\Check\FeedFileCheck;
 use Commerce\ImportMonitor\Model\Config;
-use Commerce\ImportMonitor\Test\Unit\Fake\ArrayScopeConfig;
 use DateTimeImmutable;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Exception\FileSystemException;
@@ -234,7 +234,7 @@ class FeedFileCheckTest extends TestCase
         string $extension = 'csv'
     ): FeedFileCheck {
         $config = new Config(
-            new ArrayScopeConfig(['test_importmonitor/general/feed_strict_hour' => '21']),
+            $this->scopeConfig(['test_importmonitor/general/feed_strict_hour' => '21']),
             'test_importmonitor',
             $this->createMock(EncryptorInterface::class)
         );
@@ -304,5 +304,21 @@ class FeedFileCheckTest extends TestCase
         );
 
         return $timezone;
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    private function scopeConfig(array $values): ScopeConfigInterface
+    {
+        $scopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $scopeConfig->method('getValue')->willReturnCallback(
+            static fn (string $path): mixed => $values[$path] ?? null
+        );
+        $scopeConfig->method('isSetFlag')->willReturnCallback(
+            static fn (string $path): bool => !in_array($values[$path] ?? null, [null, '', '0', 0, false], true)
+        );
+
+        return $scopeConfig;
     }
 }

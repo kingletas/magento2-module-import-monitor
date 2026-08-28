@@ -13,8 +13,8 @@ namespace Commerce\ImportMonitor\Test\Unit\Cron;
 use Commerce\ImportMonitor\Cron\MonitorImports;
 use Commerce\ImportMonitor\Model\Config;
 use Commerce\ImportMonitor\Model\ImportMonitor;
-use Commerce\ImportMonitor\Test\Unit\Fake\ArrayScopeConfig;
 use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -72,11 +72,27 @@ class MonitorImportsTest extends TestCase
     private function cron(bool $enabled = true): MonitorImports
     {
         $config = new Config(
-            new ArrayScopeConfig(['test_importmonitor/general/enabled' => $enabled ? '1' : '0']),
+            $this->scopeConfig(['test_importmonitor/general/enabled' => $enabled ? '1' : '0']),
             'test_importmonitor',
             $this->createMock(EncryptorInterface::class)
         );
 
         return new MonitorImports($this->monitor, $config, $this->logger);
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    private function scopeConfig(array $values): ScopeConfigInterface
+    {
+        $scopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $scopeConfig->method('getValue')->willReturnCallback(
+            static fn (string $path): mixed => $values[$path] ?? null
+        );
+        $scopeConfig->method('isSetFlag')->willReturnCallback(
+            static fn (string $path): bool => !in_array($values[$path] ?? null, [null, '', '0', 0, false], true)
+        );
+
+        return $scopeConfig;
     }
 }

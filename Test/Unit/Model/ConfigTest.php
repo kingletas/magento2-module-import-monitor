@@ -11,7 +11,7 @@ declare(strict_types=1);
 namespace Commerce\ImportMonitor\Test\Unit\Model;
 
 use Commerce\ImportMonitor\Model\Config;
-use Commerce\ImportMonitor\Test\Unit\Fake\ArrayScopeConfig;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -20,7 +20,7 @@ class ConfigTest extends TestCase
     public function testEveryPathIsReadUnderTheConfiguredSection(): void
     {
         $config = new Config(
-            new ArrayScopeConfig(['acme_importmonitor/general/enabled' => '1']),
+            $this->scopeConfig(['acme_importmonitor/general/enabled' => '1']),
             'acme_importmonitor',
             $this->encryptor()
         );
@@ -205,7 +205,7 @@ class ConfigTest extends TestCase
             $qualified['test_importmonitor/' . $path] = $value;
         }
 
-        return new Config(new ArrayScopeConfig($qualified), 'test_importmonitor', $this->encryptor());
+        return new Config($this->scopeConfig($qualified), 'test_importmonitor', $this->encryptor());
     }
 
     private function encryptor(): EncryptorInterface
@@ -218,5 +218,21 @@ class ConfigTest extends TestCase
         );
 
         return $encryptor;
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    private function scopeConfig(array $values): ScopeConfigInterface
+    {
+        $scopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $scopeConfig->method('getValue')->willReturnCallback(
+            static fn (string $path): mixed => $values[$path] ?? null
+        );
+        $scopeConfig->method('isSetFlag')->willReturnCallback(
+            static fn (string $path): bool => !in_array($values[$path] ?? null, [null, '', '0', 0, false], true)
+        );
+
+        return $scopeConfig;
     }
 }

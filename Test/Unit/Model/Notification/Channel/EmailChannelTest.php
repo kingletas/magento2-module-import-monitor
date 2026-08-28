@@ -15,9 +15,9 @@ use Commerce\ImportMonitor\Model\Config;
 use Commerce\ImportMonitor\Model\Notification\AlertMessage;
 use Commerce\ImportMonitor\Model\Notification\AlertMessageHtmlRenderer;
 use Commerce\ImportMonitor\Model\Notification\Channel\EmailChannel;
-use Commerce\ImportMonitor\Test\Unit\Fake\ArrayScopeConfig;
 use Commerce\ImportMonitor\Test\Unit\Fake\RealEscaper;
 use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\Mail\TransportInterface;
@@ -175,7 +175,7 @@ class EmailChannelTest extends TestCase
     private function channel(string $recipients = 'ops@example.test'): EmailChannel
     {
         $config = new Config(
-            new ArrayScopeConfig(['test_importmonitor/notification/recipients' => $recipients]),
+            $this->scopeConfig(['test_importmonitor/notification/recipients' => $recipients]),
             'test_importmonitor',
             $this->createMock(EncryptorInterface::class)
         );
@@ -247,5 +247,21 @@ class EmailChannelTest extends TestCase
         $builder->method('getTransport')->willReturn($transport);
 
         return $builder;
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    private function scopeConfig(array $values): ScopeConfigInterface
+    {
+        $scopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $scopeConfig->method('getValue')->willReturnCallback(
+            static fn (string $path): mixed => $values[$path] ?? null
+        );
+        $scopeConfig->method('isSetFlag')->willReturnCallback(
+            static fn (string $path): bool => !in_array($values[$path] ?? null, [null, '', '0', 0, false], true)
+        );
+
+        return $scopeConfig;
     }
 }

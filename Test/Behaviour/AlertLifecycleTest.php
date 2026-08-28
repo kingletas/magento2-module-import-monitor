@@ -22,8 +22,8 @@ use Commerce\ImportMonitor\Model\ImportMonitor;
 use Commerce\ImportMonitor\Model\Notification\AlertMessage;
 use Commerce\ImportMonitor\Model\Notification\NotificationDispatcher;
 use Commerce\ImportMonitor\Test\Behaviour\Fake\InMemoryAlerts;
-use Commerce\ImportMonitor\Test\Unit\Fake\ArrayScopeConfig;
 use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
@@ -429,7 +429,7 @@ class AlertLifecycleTest extends TestCase
         // The encryptor is reached only by the Slack token, which nothing in an
         // alert's lifecycle touches.
         return new Config(
-            new ArrayScopeConfig($this->settings),
+            $this->scopeConfig($this->settings),
             self::SECTION,
             $this->createMock(EncryptorInterface::class)
         );
@@ -470,5 +470,21 @@ class AlertLifecycleTest extends TestCase
             'task_run' => str_contains($message, 'price import'),
             default => false,
         };
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    private function scopeConfig(array $values): ScopeConfigInterface
+    {
+        $scopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $scopeConfig->method('getValue')->willReturnCallback(
+            static fn (string $path): mixed => $values[$path] ?? null
+        );
+        $scopeConfig->method('isSetFlag')->willReturnCallback(
+            static fn (string $path): bool => !in_array($values[$path] ?? null, [null, '', '0', 0, false], true)
+        );
+
+        return $scopeConfig;
     }
 }

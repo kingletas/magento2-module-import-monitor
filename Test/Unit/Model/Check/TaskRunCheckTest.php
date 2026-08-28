@@ -16,8 +16,8 @@ use Commerce\ImportMonitor\Model\Check\ImportSpec;
 use Commerce\ImportMonitor\Model\Check\ImportTask;
 use Commerce\ImportMonitor\Model\Check\TaskRunCheck;
 use Commerce\ImportMonitor\Model\Config;
-use Commerce\ImportMonitor\Test\Unit\Fake\ArrayScopeConfig;
 use DateTimeImmutable;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\DateTime;
@@ -277,7 +277,7 @@ class TaskRunCheckTest extends TestCase
     private function config(int $stuckThresholdHours = 2): Config
     {
         return new Config(
-            new ArrayScopeConfig([
+            $this->scopeConfig([
                 'test_importmonitor/general/stuck_threshold_hours' => (string) $stuckThresholdHours,
             ]),
             'test_importmonitor',
@@ -306,5 +306,21 @@ class TaskRunCheckTest extends TestCase
         );
 
         return $timezone;
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    private function scopeConfig(array $values): ScopeConfigInterface
+    {
+        $scopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $scopeConfig->method('getValue')->willReturnCallback(
+            static fn (string $path): mixed => $values[$path] ?? null
+        );
+        $scopeConfig->method('isSetFlag')->willReturnCallback(
+            static fn (string $path): bool => !in_array($values[$path] ?? null, [null, '', '0', 0, false], true)
+        );
+
+        return $scopeConfig;
     }
 }

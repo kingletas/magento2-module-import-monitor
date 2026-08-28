@@ -17,10 +17,10 @@ use Commerce\ImportMonitor\Model\Config;
 use Commerce\ImportMonitor\Model\Notification\AlertMessage;
 use Commerce\ImportMonitor\Model\Notification\NotificationDispatcher;
 use Commerce\ImportMonitor\Model\ResourceModel\Alert as AlertResource;
-use Commerce\ImportMonitor\Test\Unit\Fake\ArrayScopeConfig;
 use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
 use DateTimeImmutable;
 use InvalidArgumentException;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\UrlInterface;
@@ -284,7 +284,7 @@ class NotificationDispatcherTest extends TestCase
         $timezone->method('date')->willReturn(new DateTimeImmutable('2026-08-26 06:00:00', new \DateTimeZone('UTC')));
 
         $config = new Config(
-            new ArrayScopeConfig([
+            $this->scopeConfig([
                 'test_importmonitor/notification/include_hostname' => $includeHostname ? '1' : '0',
             ]),
             'test_importmonitor',
@@ -334,5 +334,21 @@ class NotificationDispatcherTest extends TestCase
     public function useCode(string $code): void
     {
         $this->currentChannelCode = $code;
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    private function scopeConfig(array $values): ScopeConfigInterface
+    {
+        $scopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $scopeConfig->method('getValue')->willReturnCallback(
+            static fn (string $path): mixed => $values[$path] ?? null
+        );
+        $scopeConfig->method('isSetFlag')->willReturnCallback(
+            static fn (string $path): bool => !in_array($values[$path] ?? null, [null, '', '0', 0, false], true)
+        );
+
+        return $scopeConfig;
     }
 }
