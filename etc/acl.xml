@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!--
+    /** * acl.xml * * @package Commerce_ImportMonitor * @copyright Copyright
+    (c) the Commerce modules authors */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::system">
+                    <resource id="Commerce_ImportMonitor::monitor" title="Import Monitor" translate="title" sortOrder="95">
+                        <resource id="Commerce_ImportMonitor::alerts" title="Alerts" translate="title" sortOrder="10"/>
+                        <resource id="Commerce_ImportMonitor::checks" title="Run Checks" translate="title" sortOrder="20"/>
+                        <resource id="Commerce_ImportMonitor::salability" title="Salability" translate="title" sortOrder="30"/>
+                        <!--
+                            Separate from viewing: applying a fix writes to the
+                            catalogue, and plenty of roles should read the
+                            report without that.
+                        -->
+                        <resource id="Commerce_ImportMonitor::salability_fix" title="Apply Salability Fixes" translate="title" sortOrder="40"/>
+                    </resource>
+                </resource>
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="Commerce_ImportMonitor::config" title="Import Monitor Section" translate="title" sortOrder="950"/>
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

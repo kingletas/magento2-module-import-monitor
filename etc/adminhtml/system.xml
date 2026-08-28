@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="commerce_import_monitor" translate="label" type="text" sortOrder="950"
+                 showInDefault="1">
+            <class>separator-top</class>
+            <label>Import Monitor</label>
+            <tab>advanced</tab>
+            <resource>Commerce_ImportMonitor::config</resource>
+
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1">
+                <label>General</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10"
+                       showInDefault="1" canRestore="1">
+                    <label>Enable Monitoring</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="stuck_threshold_hours" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" canRestore="1">
+                    <label>Stuck Import Threshold (hours)</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <comment>How long an import may run before it is reported as stuck.</comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+                <field id="feed_strict_hour" translate="label comment" type="text" sortOrder="30"
+                       showInDefault="1" canRestore="1">
+                    <label>Require Today's Feed From (hour)</label>
+                    <validate>validate-digits validate-digits-range digits-range-0-23</validate>
+                    <comment><![CDATA[Hour of day (0-23, <strong>store timezone</strong>) from which today's
+                        feed file is required. Before it, yesterday's file is accepted, because suppliers
+                        typically drop in the evening and demanding today's from midnight would alert on every
+                        cron run.]]></comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+                <field id="retention_days" translate="label comment" type="text" sortOrder="40"
+                       showInDefault="1" canRestore="1">
+                    <label>Keep Resolved Alerts For (days)</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+            </group>
+
+            <group id="notification" translate="label" type="text" sortOrder="20" showInDefault="1">
+                <label>Notifications</label>
+                <field id="recipients" translate="label comment" type="textarea" sortOrder="10" showInDefault="1">
+                    <label>Email Recipients</label>
+                    <comment>Comma-separated. One message is sent to all of them.</comment>
+                </field>
+                <field id="sender_identity" translate="label" type="select" sortOrder="20"
+                       showInDefault="1" canRestore="1">
+                    <label>Sender</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Identity</source_model>
+                </field>
+                <field id="alert_template" translate="label" type="select" sortOrder="30"
+                       showInDefault="1" canRestore="1">
+                    <label>Alert Template</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+                <field id="include_hostname" translate="label comment" type="select" sortOrder="40"
+                       showInDefault="1" canRestore="1">
+                    <label>Include Server Hostname</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Off by default: alerts go to email and chat, which usually reach a wider audience
+                        than the operations team.</comment>
+                </field>
+            </group>
+
+            <group id="slack" translate="label" type="text" sortOrder="30" showInDefault="1">
+                <label>Slack</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10"
+                       showInDefault="1" canRestore="1">
+                    <label>Post Alerts to Slack</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="token" translate="label comment" type="obscure" sortOrder="20" showInDefault="1">
+                    <label>Bot Token</label>
+                    <!-- Encrypted. -->
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <comment>Stored encrypted. Needs the chat:write scope.</comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+                <field id="channel" translate="label comment" type="text" sortOrder="30" showInDefault="1">
+                    <label>Channel</label>
+                    <comment>Channel name without the leading #.</comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

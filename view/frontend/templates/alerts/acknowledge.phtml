@@ -1,0 +1,36 @@
+<?php
+/**
+ * acknowledge.phtml
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ *
+ * @package     Commerce_ImportMonitor
+ * @copyright   Copyright (c) the Commerce modules authors
+ * @license     OSL-3.0 https://opensource.org/licenses/OSL-3.0
+ */
+declare(strict_types=1);
+
+/** @var \Commerce\ImportMonitor\ViewModel\AcknowledgeForm $viewModel */
+$viewModel = $block->getData('view_model');
+?>
+<div class="import-monitor-acknowledge">
+    <?php if ($viewModel === null || !$viewModel->hasUsableLink()): ?>
+        <p><?= $escaper->escapeHtml(__('That acknowledgement link is not valid.')) ?></p>
+    <?php else: ?>
+        <?php $explanation = __(
+            'Acknowledging tells the monitor that someone has seen this alert.'
+            . ' It does not fix the underlying problem.'
+        ); ?>
+        <p><?= $escaper->escapeHtml($explanation) ?></p>
+
+        <form action="<?= $escaper->escapeUrl($viewModel->getConfirmUrl()) ?>" method="post">
+            <?= $block->getBlockHtml('formkey') ?>
+            <input type="hidden" name="id" value="<?= $escaper->escapeHtmlAttr($viewModel->getAlertId()) ?>">
+            <input type="hidden" name="token" value="<?= $escaper->escapeHtmlAttr($viewModel->getToken()) ?>">
+            <button type="submit" class="action primary">
+                <span><?= $escaper->escapeHtml(__('Acknowledge this alert')) ?></span>
+            </button>
+        </form>
+    <?php endif; ?>
+</div>

@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <preference for="Commerce\ImportMonitor\Api\Data\AlertInterface"
+                type="Commerce\ImportMonitor\Model\Alert"/>
+    <preference for="Commerce\ImportMonitor\Api\SupplierFeedReaderInterface"
+                type="Commerce\ImportMonitor\Model\Salability\Feed\CsvFeedReader"/>
+
+    <type name="Commerce\ImportMonitor\Model\Config">
+        <arguments>
+            <argument name="section" xsi:type="string">commerce_import_monitor</argument>
+        </arguments>
+    </type>
+
+    <!-- REQUIRED WIRING. -->
+    <preference for="Commerce\ImportMonitor\Api\ImportTaskSourceInterface"
+                type="Commerce\ImportMonitor\Model\Unbound\UnboundImportTaskSource"/>
+    <preference for="Commerce\ImportMonitor\Api\SalableQuantityProviderInterface"
+                type="Commerce\ImportMonitor\Model\Unbound\UnboundSalableQuantityProvider"/>
+
+    <!-- Registered checks. -->
+    <type name="Commerce\ImportMonitor\Model\Check\CheckRunner">
+        <arguments>
+            <argument name="checks" xsi:type="array">
+                <item name="feed_file" xsi:type="object">Commerce\ImportMonitor\Model\Check\FeedFileCheck</item>
+            </argument>
+            <argument name="logger" xsi:type="object">Commerce\ImportMonitor\Logger</argument>
+        </arguments>
+    </type>
+
+    <type name="Commerce\ImportMonitor\Model\Check\FeedFileCheck">
+        <arguments>
+            <argument name="searchDirectories" xsi:type="array">
+                <item name="import" xsi:type="string">import</item>
+                <item name="archive" xsi:type="string">import/archive</item>
+            </argument>
+            <argument name="filenamePrefix" xsi:type="string">feed_</argument>
+            <argument name="filenameExtension" xsi:type="string">csv</argument>
+            <argument name="label" xsi:type="string">Supplier feed file</argument>
+        </arguments>
+    </type>
+
+    <type name="Commerce\ImportMonitor\Model\Salability\Feed\CsvFeedReader">
+        <arguments>
+            <argument name="skuColumn" xsi:type="string">sku</argument>
+            <argument name="siteStatusColumn" xsi:type="string">site_status</argument>
+            <argument name="masterStatusColumn" xsi:type="string">master_status</argument>
+            <argument name="quantityColumn" xsi:type="string">quantity</argument>
+            <argument name="sellableStatuses" xsi:type="array">
+                <item name="active" xsi:type="string">A</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Commerce\ImportMonitor\Model\Salability\Magento\ProductStateLoader">
+        <arguments>
+            <argument name="siteStatusAttribute" xsi:type="string">site_status</argument>
+            <argument name="masterStatusAttribute" xsi:type="string">master_status</argument>
+        </arguments>
+    </type>
+
+    <!-- Notification channels. Register more the same way. -->
+    <type name="Commerce\ImportMonitor\Model\Notification\NotificationDispatcher">
+        <arguments>
+            <argument name="channels" xsi:type="array">
+                <item name="email" xsi:type="object">Commerce\ImportMonitor\Model\Notification\Channel\EmailChannel</item>
+                <item name="slack" xsi:type="object">Commerce\ImportMonitor\Model\Notification\Channel\SlackChannel</item>
+            </argument>
+            <argument name="logger" xsi:type="object">Commerce\ImportMonitor\Logger</argument>
+        </arguments>
+    </type>
+
+    <!-- The command name is wiring, so `bin/rebrand` rewrites it with the rest. -->
+    <type name="Commerce\ImportMonitor\Console\Command\CheckImportsCommand">
+        <arguments>
+            <argument name="name" xsi:type="string">commerce:import-monitor:check</argument>
+        </arguments>
+    </type>
+
+    <!-- The command name is wiring, so `bin/rebrand` rewrites it with the rest. -->
+    <type name="Commerce\ImportMonitor\Console\Command\ReconcileSalabilityCommand">
+        <arguments>
+            <argument name="name" xsi:type="string">commerce:import-monitor:reconcile-salability</argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="commerce_import_monitor_check" xsi:type="object">Commerce\ImportMonitor\Console\Command\CheckImportsCommand</item>
+                <item name="commerce_import_monitor_reconcile" xsi:type="object">Commerce\ImportMonitor\Console\Command\ReconcileSalabilityCommand</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Commerce\ImportMonitor\Model\Alert\AlertManager">
+        <arguments><argument name="logger" xsi:type="object">Commerce\ImportMonitor\Logger</argument></arguments>
+    </type>
+    <type name="Commerce\ImportMonitor\Model\Salability\Reconciler">
+        <arguments><argument name="logger" xsi:type="object">Commerce\ImportMonitor\Logger</argument></arguments>
+    </type>
+    <type name="Commerce\ImportMonitor\Model\Notification\Channel\EmailChannel">
+        <arguments><argument name="logger" xsi:type="object">Commerce\ImportMonitor\Logger</argument></arguments>
+    </type>
+    <type name="Commerce\ImportMonitor\Model\Notification\Channel\SlackChannel">
+        <arguments><argument name="logger" xsi:type="object">Commerce\ImportMonitor\Logger</argument></arguments>
+    </type>
+    <type name="Commerce\ImportMonitor\Cron\MonitorImports">
+        <arguments><argument name="logger" xsi:type="object">Commerce\ImportMonitor\Logger</argument></arguments>
+    </type>
+    <type name="Commerce\ImportMonitor\Cron\PurgeResolvedAlerts">
+        <arguments><argument name="logger" xsi:type="object">Commerce\ImportMonitor\Logger</argument></arguments>
+    </type>
+
+    <virtualType name="Commerce\ImportMonitor\Logger\Handler" type="Commerce\Logger\Handler">
+        <arguments>
+            <argument name="fileName" xsi:type="string">import_monitor.log</argument>
+            <argument name="subDirectory" xsi:type="string">commerce</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Commerce\ImportMonitor\Logger" type="Commerce\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">commerce_import_monitor</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">Commerce\ImportMonitor\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+</config>

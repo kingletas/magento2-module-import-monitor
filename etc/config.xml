@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <commerce_import_monitor>
+            <general>
+                <enabled>0</enabled>
+                <stuck_threshold_hours>2</stuck_threshold_hours>
+                <feed_strict_hour>21</feed_strict_hour>
+                <retention_days>30</retention_days>
+            </general>
+            <notification>
+                <sender_identity>general</sender_identity>
+                <alert_template>commerce_import_monitor_alert</alert_template>
+                <resolved_template>commerce_import_monitor_resolved</resolved_template>
+                <!-- Off: alert bodies go to email and chat, which usually have a wider audience. -->
+                <include_hostname>0</include_hostname>
+            </notification>
+            <slack>
+                <enabled>0</enabled>
+            </slack>
+        </commerce_import_monitor>
+    </default>
+</config>

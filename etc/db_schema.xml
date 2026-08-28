@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="commerce_import_monitor_alert" resource="default" engine="innodb"
+           comment="Raised import-monitoring alerts">
+        <column xsi:type="int" name="alert_id" padding="10" unsigned="true"
+                nullable="false" identity="true" comment="Alert ID"/>
+        <!-- Identifies the fault, not the sighting. -->
+        <column xsi:type="varchar" name="fingerprint" nullable="false" length="64"
+                comment="Stable hash identifying the fault"/>
+        <column xsi:type="text" name="message" nullable="false" comment="Most recent description"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="16" default="open"
+                comment="open, acknowledged or resolved"/>
+        <column xsi:type="int" name="occurrences" padding="10" unsigned="true"
+                nullable="false" default="1" comment="Times this fault has been seen"/>
+        <column xsi:type="timestamp" name="first_seen_at" on_update="false" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="First Seen At"/>
+        <column xsi:type="timestamp" name="last_seen_at" on_update="false" nullable="true"
+                comment="Last Seen At"/>
+        <column xsi:type="timestamp" name="acknowledged_at" on_update="false" nullable="true"
+                comment="Acknowledged At"/>
+        <column xsi:type="timestamp" name="resolved_at" on_update="false" nullable="true"
+                comment="Resolved At"/>
+
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="alert_id"/>
+        </constraint>
+        <!-- Unique, so recording a sighting is a single atomic INSERT ... -->
+        <constraint xsi:type="unique" referenceId="COMMERCE_IMPORT_MONITOR_ALERT_FINGERPRINT">
+            <column name="fingerprint"/>
+        </constraint>
+        <index referenceId="COMMERCE_IMPORT_MONITOR_ALERT_STATUS_LAST_SEEN_AT" indexType="btree">
+            <column name="status"/>
+            <column name="last_seen_at"/>
+        </index>
+        <index referenceId="COMMERCE_IMPORT_MONITOR_ALERT_STATUS_RESOLVED_AT" indexType="btree">
+            <column name="status"/>
+            <column name="resolved_at"/>
+        </index>
+    </table>
+
+    <table name="commerce_import_monitor_salability_flag" resource="default" engine="innodb"
+           comment="SKUs the supplier can sell but Magento cannot">
+        <column xsi:type="int" name="flag_id" padding="10" unsigned="true"
+                nullable="false" identity="true" comment="Flag ID"/>
+        <column xsi:type="int" name="run_id" padding="10" unsigned="true" nullable="true"
+                comment="Reconciliation run that raised this"/>
+        <column xsi:type="varchar" name="sku" nullable="false" length="64" comment="SKU"/>
+        <column xsi:type="varchar" name="reason" nullable="false" length="32" comment="Discrepancy reason"/>
+        <column xsi:type="text" name="message" nullable="true" comment="Human-readable explanation"/>
+        <column xsi:type="varchar" name="supplier_site_status" nullable="true" length="32"
+                comment="Supplier site status"/>
+        <column xsi:type="varchar" name="magento_site_status" nullable="true" length="32"
+                comment="Magento site status"/>
+        <column xsi:type="decimal" name="supplier_quantity" scale="4" precision="20" nullable="true"
+                comment="Supplier available quantity"/>
+        <column xsi:type="decimal" name="magento_quantity" scale="4" precision="20" nullable="true"
+                comment="Magento salable quantity"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Created At"/>
+
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="flag_id"/>
+        </constraint>
+        <index referenceId="COMMERCE_IMPORT_MONITOR_SALABILITY_FLAG_RUN_ID" indexType="btree">
+            <column name="run_id"/>
+        </index>
+        <index referenceId="COMMERCE_IMPORT_MONITOR_SALABILITY_FLAG_SKU" indexType="btree">
+            <column name="sku"/>
+        </index>
+    </table>
+
+    <table name="commerce_import_monitor_salability_run" resource="default" engine="innodb"
+           comment="Salability reconciliation runs">
+        <column xsi:type="int" name="run_id" padding="10" unsigned="true"
+                nullable="false" identity="true" comment="Run ID"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="16" default="running"
+                comment="running, complete, failed or stale"/>
+        <column xsi:type="varchar" name="feed_file" nullable="true" length="255" comment="Feed file reconciled"/>
+        <column xsi:type="int" name="examined" padding="10" unsigned="true" nullable="false" default="0"
+                comment="Sellable SKUs examined"/>
+        <column xsi:type="int" name="flagged" padding="10" unsigned="true" nullable="false" default="0"
+                comment="Discrepancies found"/>
+        <column xsi:type="text" name="summary" nullable="true" comment="One-line outcome"/>
+        <column xsi:type="timestamp" name="started_at" on_update="false" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Started At"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Last progress update"/>
+        <column xsi:type="timestamp" name="finished_at" on_update="false" nullable="true" comment="Finished At"/>
+
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="run_id"/>
+        </constraint>
+        <index referenceId="COMMERCE_IMPORT_MONITOR_SALABILITY_RUN_STATUS_UPDATED_AT" indexType="btree">
+            <column name="status"/>
+            <column name="updated_at"/>
+        </index>
+    </table>
+
+    <table name="commerce_import_monitor_salability_exception" resource="default" engine="innodb"
+           comment="Failures captured from asynchronous salability jobs">
+        <column xsi:type="int" name="exception_id" padding="10" unsigned="true"
+                nullable="false" identity="true" comment="Exception ID"/>
+        <column xsi:type="varchar" name="sku" nullable="true" length="64" comment="SKU, when the failure had one"/>
+        <column xsi:type="varchar" name="operation" nullable="false" length="64" comment="What was being attempted"/>
+        <column xsi:type="text" name="message" nullable="false" comment="Failure description"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Created At"/>
+
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="exception_id"/>
+        </constraint>
+        <index referenceId="COMMERCE_IMPORT_MONITOR_SALABILITY_EXCEPTION_CREATED_AT" indexType="btree">
+            <column name="created_at"/>
+        </index>
+    </table>
+</schema>

@@ -1,0 +1,29 @@
+# Static analysis needs the Magento classes on the autoloader, so this is only
+# runnable where `composer install` has resolved magento/framework. The CI job
+# that runs it is gated on those credentials being present rather than being
+# allowed to pass vacuously.
+parameters:
+    level: 6
+    paths:
+        - Api
+        - Console
+        - Controller
+        - Cron
+        - Model
+        - ViewModel
+    excludePaths:
+        - Test/*
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        # Magento's models expose their columns through __call, so every
+        # getter on a core model is invisible to static analysis.
+        - '#Call to an undefined method Magento\\[A-Za-z\\]+::(get|set|has)[A-Za-z]+\(\)#'
+        # `Acknowledge` is handed a request it deliberately never reads: the
+        # page must not become an oracle for which alert ids exist, so the
+        # signature is checked on the action that changes state instead. The
+        # dependency going unread is the behaviour under test -
+        # `testItReadsNothingFromTheRequestAndSoCannotLeakWhatExists` records
+        # every param read and asserts the list is empty. Removing the
+        # dependency to satisfy this rule would delete what that test asserts
+        # against.
+        - '#Property Commerce\\ImportMonitor\\Controller\\Alerts\\Acknowledge::\$request is never read, only written\.#'

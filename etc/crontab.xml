@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Cron/etc/crontab.xsd">
+    <group id="default">
+        <job name="commerce_import_monitor_check"
+             instance="Commerce\ImportMonitor\Cron\MonitorImports"
+             method="execute">
+            <schedule>*/15 * * * *</schedule>
+        </job>
+        <job name="commerce_import_monitor_purge_alerts"
+             instance="Commerce\ImportMonitor\Cron\PurgeResolvedAlerts"
+             method="execute">
+            <schedule>23 2 * * *</schedule>
+        </job>
+    </group>
+</config>
