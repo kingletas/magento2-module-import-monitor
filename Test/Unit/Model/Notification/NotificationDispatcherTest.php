@@ -17,7 +17,6 @@ use Commerce\ImportMonitor\Model\Config;
 use Commerce\ImportMonitor\Model\Notification\AlertMessage;
 use Commerce\ImportMonitor\Model\Notification\NotificationDispatcher;
 use Commerce\ImportMonitor\Model\ResourceModel\Alert as AlertResource;
-use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -26,6 +25,7 @@ use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\UrlInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use stdClass;
 
@@ -40,13 +40,13 @@ class NotificationDispatcherTest extends TestCase
     /** @var array<int, array{route: string, params: array<string, mixed>}> */
     private array $urls = [];
 
-    private RecordingLogger $logger;
+    private LoggerInterface&MockObject $logger;
 
     protected function setUp(): void
     {
         $this->delivered = [];
         $this->urls = [];
-        $this->logger = new RecordingLogger();
+        $this->logger = $this->createMock(LoggerInterface::class);
         $this->alertRowExists = true;
     }
 
@@ -175,14 +175,16 @@ class NotificationDispatcherTest extends TestCase
      */
     public function testAFailingChannelIsLoggedAndTheOthersStillReceive(): void
     {
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('slack'));
+
         $this->dispatcher([
             'slack' => $this->channel(throws: new RuntimeException('Connection timed out')),
             'email' => $this->channel(),
         ])->dispatchRaised([$this->failure('feed_file', 'fp-feed', 'No feed file for today.')]);
 
         $this->assertCount(1, $this->delivered['email']);
-        $this->assertCount(1, $this->logger->errors);
-        $this->assertStringContainsString('slack', $this->logger->errors[0]);
     }
 
     /**
@@ -191,11 +193,12 @@ class NotificationDispatcherTest extends TestCase
      */
     public function testAChannelThatReportsNonDeliveryIsWarnedAbout(): void
     {
+        $this->logger->expects($this->once())
+            ->method('warning')
+            ->with($this->stringContains('did not deliver'));
+
         $this->dispatcher(['slack' => $this->channel(delivers: false)])
             ->dispatchRaised([$this->failure('feed_file', 'fp-feed', 'No feed file for today.')]);
-
-        $this->assertCount(1, $this->logger->warnings);
-        $this->assertStringContainsString('did not deliver', $this->logger->warnings[0]);
     }
 
     /**

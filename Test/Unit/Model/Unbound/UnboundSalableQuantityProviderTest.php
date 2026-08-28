@@ -9,9 +9,10 @@ namespace Commerce\ImportMonitor\Test\Unit\Model\Unbound;
 
 use Commerce\ImportMonitor\Api\SalableQuantityProviderInterface;
 use Commerce\ImportMonitor\Model\Unbound\UnboundSalableQuantityProvider;
-use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
 use Magento\Framework\Exception\LocalizedException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * The placeholder that keeps the module constructable without a stock source.
@@ -22,13 +23,13 @@ class UnboundSalableQuantityProviderTest extends TestCase
     {
         $this->assertInstanceOf(
             SalableQuantityProviderInterface::class,
-            new UnboundSalableQuantityProvider(new RecordingLogger())
+            new UnboundSalableQuantityProvider($this->createMock(LoggerInterface::class))
         );
     }
 
     public function testBothOfItsMethodsRefuse(): void
     {
-        $provider = new UnboundSalableQuantityProvider(new RecordingLogger());
+        $provider = new UnboundSalableQuantityProvider($this->createMock(LoggerInterface::class));
         $thrown = 0;
 
         foreach (['getSalableQuantities', 'getSalabilityStatuses'] as $method) {
@@ -56,7 +57,8 @@ class UnboundSalableQuantityProviderTest extends TestCase
 
     public function testItWarnsOncePerProcessRatherThanPerCall(): void
     {
-        $logger = new RecordingLogger();
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning');
         $provider = new UnboundSalableQuantityProvider($logger);
 
         foreach (range(1, 5) as $ignored) {
@@ -67,6 +69,5 @@ class UnboundSalableQuantityProviderTest extends TestCase
             }
         }
 
-        $this->assertCount(1, $logger->warnings);
     }
 }

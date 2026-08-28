@@ -12,10 +12,11 @@ use Commerce\ImportMonitor\Model\Salability\DiscrepancyDescriber;
 use Commerce\ImportMonitor\Model\Salability\ProductState;
 use Commerce\ImportMonitor\Model\Salability\Reconciler;
 use Commerce\ImportMonitor\Model\Salability\SupplierSku;
-use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
 use Commerce\ImportMonitor\Test\Unit\Fake\ScriptedFeedReader;
 use Commerce\ImportMonitor\Test\Unit\Fake\ScriptedStateLoader;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * A chunk that will not load is the interesting case here.
@@ -74,13 +75,13 @@ class ReconcilerTest extends TestCase
 
     public function testTheFailureIsLoggedWithTheChunkSize(): void
     {
-        $logger = new RecordingLogger();
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('could not load Magento state'));
 
         $this->reconciler($this->feed(3), new ScriptedStateLoader([null]), logger: $logger)
             ->reconcile('feed.csv');
-
-        $this->assertCount(1, $logger->errors);
-        $this->assertStringContainsString('could not load Magento state', $logger->errors[0]);
     }
 
     /**
@@ -110,14 +111,14 @@ class ReconcilerTest extends TestCase
     private function reconciler(
         ScriptedFeedReader $feed,
         ScriptedStateLoader $loader,
-        ?RecordingLogger $logger = null,
+        ?LoggerInterface $logger = null,
         int $chunkSize = 100
     ): Reconciler {
         return new Reconciler(
             $feed,
             $loader,
             new DiscrepancyClassifier(new DiscrepancyDescriber()),
-            $logger ?? new RecordingLogger(),
+            $logger ?? $this->createMock(LoggerInterface::class),
             $chunkSize
         );
     }

@@ -13,12 +13,12 @@ namespace Commerce\ImportMonitor\Test\Unit\Cron;
 use Commerce\ImportMonitor\Cron\PurgeResolvedAlerts;
 use Commerce\ImportMonitor\Model\Config;
 use Commerce\ImportMonitor\Model\ResourceModel\Alert as AlertResource;
-use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class PurgeResolvedAlertsTest extends TestCase
@@ -29,7 +29,7 @@ class PurgeResolvedAlertsTest extends TestCase
     /** @var array<int, int> Timestamps the cutoff was formatted from. */
     private array $cutoffTimestamps = [];
 
-    private RecordingLogger $logger;
+    private LoggerInterface&MockObject $logger;
     private AlertResource&MockObject $alertResource;
     private int $removed = 4;
 
@@ -38,7 +38,7 @@ class PurgeResolvedAlertsTest extends TestCase
         $this->cutoffs = [];
         $this->cutoffTimestamps = [];
         $this->removed = 4;
-        $this->logger = new RecordingLogger();
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->alertResource = $this->createMock(AlertResource::class);
         $this->alertResource->method('purgeResolvedBefore')->willReturnCallback(
@@ -87,10 +87,11 @@ class PurgeResolvedAlertsTest extends TestCase
      */
     public function testARemovalIsReportedWithItsCount(): void
     {
-        $this->cron()->execute();
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with($this->stringContains('4'));
 
-        $this->assertCount(1, $this->logger->infos);
-        $this->assertStringContainsString('4', $this->logger->infos[0]);
+        $this->cron()->execute();
     }
 
     /**
@@ -99,24 +100,25 @@ class PurgeResolvedAlertsTest extends TestCase
      */
     public function testAnEmptySweepSaysNothing(): void
     {
+        $this->logger->expects($this->never())->method('info');
+
         $this->removed = 0;
 
         $this->cron()->execute();
-
-        $this->assertSame([], $this->logger->infos);
     }
 
     public function testAFailingSweepIsLoggedRatherThanThrownAtCron(): void
     {
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('cleanup failed'));
+        $this->logger->expects($this->never())->method('info');
+
         $this->alertResource = $this->createMock(AlertResource::class);
         $this->alertResource->method('purgeResolvedBefore')
             ->willThrowException(new RuntimeException('lock wait timeout'));
 
         $this->cron()->execute();
-
-        $this->assertCount(1, $this->logger->errors);
-        $this->assertStringContainsString('cleanup failed', $this->logger->errors[0]);
-        $this->assertSame([], $this->logger->infos);
     }
 
     private function cron(?int $retentionDays = null): PurgeResolvedAlerts

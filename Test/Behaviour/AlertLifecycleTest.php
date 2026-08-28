@@ -22,14 +22,15 @@ use Commerce\ImportMonitor\Model\ImportMonitor;
 use Commerce\ImportMonitor\Model\Notification\AlertMessage;
 use Commerce\ImportMonitor\Model\Notification\NotificationDispatcher;
 use Commerce\ImportMonitor\Test\Behaviour\Fake\InMemoryAlerts;
-use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\UrlInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 /**
@@ -41,7 +42,7 @@ class AlertLifecycleTest extends TestCase
     private const NOW = '2026-08-27 09:00:00';
 
     private InMemoryAlerts $alerts;
-    private RecordingLogger $logger;
+    private LoggerInterface&MockObject $logger;
 
     /** @var array<string, CheckResult> The state of the world, by check code. */
     private array $world = [];
@@ -60,7 +61,7 @@ class AlertLifecycleTest extends TestCase
     protected function setUp(): void
     {
         $this->alerts = new InMemoryAlerts();
-        $this->logger = new RecordingLogger();
+        $this->logger = $this->createMock(LoggerInterface::class);
         $this->world = [];
         $this->sent = [];
         $this->channels = ['email' => true];
@@ -172,13 +173,14 @@ class AlertLifecycleTest extends TestCase
      */
     public function testACheckThatThrowsDoesNotStopTheOtherChecks(): void
     {
+        $this->logger->expects($this->atLeastOnce())->method('error');
+
         $this->world['broken_check'] = null;
         $this->world['task_run'] = $this->failing('task_run', 'price_import', 'The price import is stuck.');
 
         $this->runMonitor();
 
         $this->assertSame(AlertInterface::STATUS_OPEN, $this->alerts->statusOf($this->fingerprintOf('task_run')));
-        $this->assertNotSame([], $this->logger->errors, 'The thrown check should be reported.');
     }
 
     /**

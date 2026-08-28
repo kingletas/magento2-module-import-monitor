@@ -14,7 +14,6 @@ use Commerce\ImportMonitor\Api\AlertChannelInterface;
 use Commerce\ImportMonitor\Model\Config;
 use Commerce\ImportMonitor\Model\Notification\AlertMessage;
 use Commerce\ImportMonitor\Model\Notification\Channel\SlackChannel;
-use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\HTTP\Client\Curl;
@@ -22,6 +21,7 @@ use Magento\Framework\HTTP\Client\CurlFactory;
 use Magento\Framework\Serialize\Serializer\Json;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class SlackChannelTest extends TestCase
@@ -36,7 +36,7 @@ class SlackChannelTest extends TestCase
     private int $status = 200;
     private string $body = '{"ok":true}';
     private ?\Throwable $postFailure = null;
-    private RecordingLogger $logger;
+    private LoggerInterface&MockObject $logger;
 
     protected function setUp(): void
     {
@@ -46,7 +46,7 @@ class SlackChannelTest extends TestCase
         $this->status = 200;
         $this->body = '{"ok":true}';
         $this->postFailure = null;
-        $this->logger = new RecordingLogger();
+        $this->logger = $this->createMock(LoggerInterface::class);
     }
 
     public function testItAnnouncesItsCode(): void
@@ -124,19 +124,24 @@ class SlackChannelTest extends TestCase
      */
     public function testATwoHundredWithOkFalseIsNotADelivery(): void
     {
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('channel_not_found'));
+
         $this->body = '{"ok":false,"error":"channel_not_found"}';
 
         $this->assertFalse($this->channel()->send($this->message()));
-        $this->assertCount(1, $this->logger->errors);
-        $this->assertStringContainsString('channel_not_found', $this->logger->errors[0]);
     }
 
     public function testAnUnexpectedStatusIsReportedWithItsCode(): void
     {
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('503'));
+
         $this->status = 503;
 
         $this->assertFalse($this->channel()->send($this->message()));
-        $this->assertStringContainsString('503', $this->logger->errors[0]);
     }
 
     /**
@@ -145,18 +150,22 @@ class SlackChannelTest extends TestCase
      */
     public function testAnUnparseableResponseIsReportedRatherThanThrown(): void
     {
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('unparseable'));
+
         $this->body = '<html>Gateway timeout</html>';
 
         $this->assertFalse($this->channel()->send($this->message()));
-        $this->assertStringContainsString('unparseable', $this->logger->errors[0]);
     }
 
     public function testAResponseThatIsNotAnObjectIsRejected(): void
     {
+        $this->logger->expects($this->once())->method('error');
+
         $this->body = '"ok"';
 
         $this->assertFalse($this->channel()->send($this->message()));
-        $this->assertCount(1, $this->logger->errors);
     }
 
     /**
@@ -165,10 +174,11 @@ class SlackChannelTest extends TestCase
      */
     public function testATransportFailureIsContainedAndLogged(): void
     {
+        $this->logger->expects($this->once())->method('error');
+
         $this->postFailure = new RuntimeException('Connection timed out');
 
         $this->assertFalse($this->channel()->send($this->message()));
-        $this->assertCount(1, $this->logger->errors);
     }
 
     private function message(): AlertMessage

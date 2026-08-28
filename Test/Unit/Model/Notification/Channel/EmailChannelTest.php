@@ -16,7 +16,6 @@ use Commerce\ImportMonitor\Model\Notification\AlertMessage;
 use Commerce\ImportMonitor\Model\Notification\AlertMessageHtmlRenderer;
 use Commerce\ImportMonitor\Model\Notification\Channel\EmailChannel;
 use Commerce\ImportMonitor\Test\Unit\Fake\RealEscaper;
-use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Mail\Template\TransportBuilder;
@@ -25,6 +24,7 @@ use Magento\Framework\Translate\Inline\StateInterface;
 use Magento\Store\Model\Store;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use TypeError;
 
@@ -47,7 +47,7 @@ class EmailChannelTest extends TestCase
     private ?string $senderScope = null;
     private int $sent = 0;
     private ?\Throwable $sendFailure = null;
-    private RecordingLogger $logger;
+    private LoggerInterface&MockObject $logger;
 
     protected function setUp(): void
     {
@@ -59,7 +59,7 @@ class EmailChannelTest extends TestCase
         $this->senderScope = null;
         $this->sent = 0;
         $this->sendFailure = null;
-        $this->logger = new RecordingLogger();
+        $this->logger = $this->createMock(LoggerInterface::class);
     }
 
     public function testItAnnouncesItsCode(): void
@@ -139,10 +139,11 @@ class EmailChannelTest extends TestCase
      */
     public function testAFailedSendIsReportedAndLoggedRatherThanThrown(): void
     {
+        $this->logger->expects($this->once())->method('error');
+
         $this->sendFailure = new RuntimeException('SMTP connection refused');
 
         $this->assertFalse($this->channel()->send($this->message()));
-        $this->assertCount(1, $this->logger->errors);
     }
 
     public function testInlineTranslationIsSuspendedForTheRender(): void

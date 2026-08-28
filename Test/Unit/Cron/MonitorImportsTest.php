@@ -13,21 +13,21 @@ namespace Commerce\ImportMonitor\Test\Unit\Cron;
 use Commerce\ImportMonitor\Cron\MonitorImports;
 use Commerce\ImportMonitor\Model\Config;
 use Commerce\ImportMonitor\Model\ImportMonitor;
-use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class MonitorImportsTest extends TestCase
 {
-    private RecordingLogger $logger;
+    private LoggerInterface&MockObject $logger;
     private ImportMonitor&MockObject $monitor;
 
     protected function setUp(): void
     {
-        $this->logger = new RecordingLogger();
+        $this->logger = $this->createMock(LoggerInterface::class);
         $this->monitor = $this->createMock(ImportMonitor::class);
     }
 
@@ -52,21 +52,22 @@ class MonitorImportsTest extends TestCase
      */
     public function testAFailedRunIsLoggedRatherThanThrownAtCron(): void
     {
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('scheduled run failed'));
+
         $this->monitor->method('run')->willThrowException(new RuntimeException('feed host unreachable'));
 
         $this->cron()->execute();
-
-        $this->assertCount(1, $this->logger->errors);
-        $this->assertStringContainsString('scheduled run failed', $this->logger->errors[0]);
     }
 
     public function testASuccessfulRunSaysNothing(): void
     {
+        $this->logger->expects($this->never())->method('error');
+
         $this->monitor->method('run')->willReturn([]);
 
         $this->cron()->execute();
-
-        $this->assertSame([], $this->logger->errors);
     }
 
     private function cron(bool $enabled = true): MonitorImports

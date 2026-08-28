@@ -9,9 +9,10 @@ namespace Commerce\ImportMonitor\Test\Unit\Model\Unbound;
 
 use Commerce\ImportMonitor\Api\ImportTaskSourceInterface;
 use Commerce\ImportMonitor\Model\Unbound\UnboundImportTaskSource;
-use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
 use Magento\Framework\Exception\LocalizedException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * The placeholder that keeps the module constructable without an import source.
@@ -22,7 +23,7 @@ class UnboundImportTaskSourceTest extends TestCase
     {
         $this->assertInstanceOf(
             ImportTaskSourceInterface::class,
-            new UnboundImportTaskSource(new RecordingLogger())
+            new UnboundImportTaskSource($this->createMock(LoggerInterface::class))
         );
     }
 
@@ -31,7 +32,9 @@ class UnboundImportTaskSourceTest extends TestCase
         $this->expectException(LocalizedException::class);
         $this->expectExceptionMessage('No import task source is bound');
 
-        (new UnboundImportTaskSource(new RecordingLogger()))->getLatestRuns(['nightly'], '2026-01-01 00:00:00');
+        $source = new UnboundImportTaskSource($this->createMock(LoggerInterface::class));
+
+        $source->getLatestRuns(['nightly'], '2026-01-01 00:00:00');
     }
 
     /**
@@ -47,7 +50,8 @@ class UnboundImportTaskSourceTest extends TestCase
 
     public function testItWarnsOncePerProcessRatherThanPerCall(): void
     {
-        $logger = new RecordingLogger();
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning');
         $source = new UnboundImportTaskSource($logger);
 
         foreach (range(1, 5) as $ignored) {
@@ -58,6 +62,5 @@ class UnboundImportTaskSourceTest extends TestCase
             }
         }
 
-        $this->assertCount(1, $logger->warnings);
     }
 }

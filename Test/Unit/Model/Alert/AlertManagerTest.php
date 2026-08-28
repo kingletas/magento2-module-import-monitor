@@ -15,12 +15,12 @@ use Commerce\ImportMonitor\Model\Check\CheckResult;
 use Commerce\ImportMonitor\Model\Config;
 use Commerce\ImportMonitor\Model\Notification\NotificationDispatcher;
 use Commerce\ImportMonitor\Model\ResourceModel\Alert as AlertResource;
-use Commerce\ImportMonitor\Test\Unit\Fake\RecordingLogger;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * What turns a failed check into an alert, once.
@@ -31,7 +31,7 @@ class AlertManagerTest extends TestCase
 
     private AlertResource&MockObject $resource;
     private NotificationDispatcher&MockObject $dispatcher;
-    private RecordingLogger $logger;
+    private LoggerInterface&MockObject $logger;
 
     /** @var array<int, array{fingerprint: string, message: string}> */
     private array $recorded = [];
@@ -46,7 +46,7 @@ class AlertManagerTest extends TestCase
         $this->recorded = [];
         $this->newlyRaised = [];
         $this->resolved = 0;
-        $this->logger = new RecordingLogger();
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->resource = $this->createMock(AlertResource::class);
         $this->resource->method('recordOccurrence')->willReturnCallback(
@@ -111,12 +111,13 @@ class AlertManagerTest extends TestCase
      */
     public function testFaultsThatStoppedBeingReportedAreResolvedAndLogged(): void
     {
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with($this->stringContains('2 alert(s) resolved'));
+
         $this->resolved = 2;
 
         $this->manager()->process([$this->failure('feed missing')]);
-
-        $this->assertCount(1, $this->logger->infos);
-        $this->assertStringContainsString('2 alert(s) resolved', $this->logger->infos[0]);
     }
 
     private function failure(string $message, string $seed = 'seed'): CheckResult
