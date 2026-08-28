@@ -20,15 +20,15 @@ class FeedFilePresenceTest extends TestCase
     {
         $presence = new FeedFilePresence('2026-08-26', ['/feeds/inventory-2026-08-26.csv'], true);
 
-        self::assertSame('2026-08-26', $presence->date);
-        self::assertSame(['/feeds/inventory-2026-08-26.csv'], $presence->matches);
-        self::assertTrue($presence->hasContent);
-        self::assertTrue($presence->wasFound());
+        $this->assertSame('2026-08-26', $presence->date);
+        $this->assertSame(['/feeds/inventory-2026-08-26.csv'], $presence->matches);
+        $this->assertTrue($presence->hasContent);
+        $this->assertTrue($presence->wasFound());
     }
 
     public function testADayWithNoMatchingFileWasNotFound(): void
     {
-        self::assertFalse((new FeedFilePresence('2026-08-26', [], false))->wasFound());
+        $this->assertFalse((new FeedFilePresence('2026-08-26', [], false))->wasFound());
     }
 
     /**
@@ -39,8 +39,8 @@ class FeedFilePresenceTest extends TestCase
     {
         $presence = new FeedFilePresence('2026-08-26', ['/feeds/inventory-2026-08-26.csv'], false);
 
-        self::assertTrue($presence->wasFound());
-        self::assertFalse($presence->hasContent);
+        $this->assertTrue($presence->wasFound());
+        $this->assertFalse($presence->hasContent);
     }
 
     /**
@@ -54,19 +54,19 @@ class FeedFilePresenceTest extends TestCase
             true
         );
 
-        self::assertStringContainsString('-a.csv', $presence->describe());
-        self::assertStringContainsString('-b.csv', $presence->describe());
+        $this->assertStringContainsString('-a.csv', $presence->describe());
+        $this->assertStringContainsString('-b.csv', $presence->describe());
     }
 
     public function testADayWithNoMatchesDescribesItselfAsNothing(): void
     {
-        self::assertSame('', (new FeedFilePresence('2026-08-26', [], false))->describe());
+        $this->assertSame('', (new FeedFilePresence('2026-08-26', [], false))->describe());
     }
 
     public function testItIsImmutable(): void
     {
         foreach (['date', 'matches', 'hasContent'] as $property) {
-            self::assertTrue(
+            $this->assertTrue(
                 (new ReflectionProperty(FeedFilePresence::class, $property))->isReadOnly(),
                 sprintf('%s must be read-only.', $property)
             );

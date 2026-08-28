@@ -46,15 +46,15 @@ class ImportMonitorTest extends TestCase
      */
     public function testCheckingRaisesNothing(): void
     {
-        self::assertSame($this->results, $this->monitor()->check());
-        self::assertSame([], $this->processed);
+        $this->assertSame($this->results, $this->monitor()->check());
+        $this->assertSame([], $this->processed);
     }
 
     public function testRunningRaisesAlertsForWhatTheChecksFound(): void
     {
         $this->monitor()->run();
 
-        self::assertSame([$this->results], $this->processed);
+        $this->assertSame([$this->results], $this->processed);
     }
 
     /**
@@ -64,16 +64,16 @@ class ImportMonitorTest extends TestCase
     {
         $returned = $this->monitor()->run();
 
-        self::assertCount(2, $returned);
-        self::assertSame($this->results, $returned);
+        $this->assertCount(2, $returned);
+        $this->assertSame($this->results, $returned);
     }
 
     public function testARunWithNothingWrongStillReportsTheChecksItRan(): void
     {
         $this->results = [new CheckResult(true, 'supplier_inventory')];
 
-        self::assertCount(1, $this->monitor()->run());
-        self::assertSame([$this->results], $this->processed);
+        $this->assertCount(1, $this->monitor()->run());
+        $this->assertSame([$this->results], $this->processed);
     }
 
     /**
@@ -84,7 +84,7 @@ class ImportMonitorTest extends TestCase
     {
         $this->monitor()->run();
 
-        self::assertSame(
+        $this->assertSame(
             ['supplier_inventory', 'supplier_feed'],
             array_map(static fn (CheckResult $r): string => $r->checkCode, $this->processed[0])
         );
@@ -97,7 +97,7 @@ class ImportMonitorTest extends TestCase
     public function testTheChecksAreRunThroughOneSharedRunner(): void
     {
         $this->checkRunner = $this->createMock(CheckRunner::class);
-        $this->checkRunner->expects(self::exactly(2))->method('runAll')->willReturn([]);
+        $this->checkRunner->expects($this->exactly(2))->method('runAll')->willReturn([]);
 
         $monitor = $this->monitor();
         $monitor->check();

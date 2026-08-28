@@ -16,11 +16,11 @@ use PHPUnit\Framework\TestCase;
 /**
  * The placeholder that keeps the module constructable without a stock source.
  */
-final class UnboundSalableQuantityProviderTest extends TestCase
+class UnboundSalableQuantityProviderTest extends TestCase
 {
     public function testItSatisfiesTheInterfaceItStandsInFor(): void
     {
-        self::assertInstanceOf(
+        $this->assertInstanceOf(
             SalableQuantityProviderInterface::class,
             new UnboundSalableQuantityProvider(new RecordingLogger())
         );
@@ -36,11 +36,11 @@ final class UnboundSalableQuantityProviderTest extends TestCase
                 $provider->{$method}(['SKU-1']);
             } catch (LocalizedException $e) {
                 $thrown++;
-                self::assertStringContainsString('No salable quantity provider is bound', $e->getMessage());
+                $this->assertStringContainsString('No salable quantity provider is bound', $e->getMessage());
             }
         }
 
-        self::assertSame(2, $thrown, 'Both methods must refuse, not just the one the reconciler happens to call.');
+        $this->assertSame(2, $thrown, 'Both methods must refuse, not just the one the reconciler happens to call.');
     }
 
     /**
@@ -48,7 +48,7 @@ final class UnboundSalableQuantityProviderTest extends TestCase
      */
     public function testTheMessageNamesTheInterfaceToBind(): void
     {
-        self::assertStringContainsString(
+        $this->assertStringContainsString(
             SalableQuantityProviderInterface::class,
             UnboundSalableQuantityProvider::MESSAGE
         );
@@ -67,6 +67,6 @@ final class UnboundSalableQuantityProviderTest extends TestCase
             }
         }
 
-        self::assertCount(1, $logger->warnings);
+        $this->assertCount(1, $logger->warnings);
     }
 }

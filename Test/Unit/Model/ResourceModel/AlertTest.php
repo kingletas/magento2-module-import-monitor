@@ -103,11 +103,11 @@ class AlertTest extends TestCase
         $resource = (new ReflectionClass(Alert::class))->newInstanceWithoutConstructor();
         (new ReflectionMethod($resource, '_construct'))->invoke($resource);
 
-        self::assertSame(
+        $this->assertSame(
             Alert::TABLE_NAME,
             (new ReflectionProperty(Alert::class, '_mainTable'))->getValue($resource)
         );
-        self::assertSame(AlertInterface::ALERT_ID, $resource->getIdFieldName());
+        $this->assertSame(AlertInterface::ALERT_ID, $resource->getIdFieldName());
     }
 
     /**
@@ -117,9 +117,9 @@ class AlertTest extends TestCase
     {
         $this->resource()->recordOccurrence('fp-1', 'Nightly import is stuck.', self::NOW);
 
-        self::assertCount(1, $this->upserts);
-        self::assertSame('fp-1', $this->upserts[0]['rows'][AlertInterface::FINGERPRINT]);
-        self::assertSame(AlertInterface::STATUS_OPEN, $this->upserts[0]['rows'][AlertInterface::STATUS]);
+        $this->assertCount(1, $this->upserts);
+        $this->assertSame('fp-1', $this->upserts[0]['rows'][AlertInterface::FINGERPRINT]);
+        $this->assertSame(AlertInterface::STATUS_OPEN, $this->upserts[0]['rows'][AlertInterface::STATUS]);
     }
 
     /**
@@ -129,14 +129,14 @@ class AlertTest extends TestCase
     {
         $this->rowCount = 1;
 
-        self::assertTrue($this->resource()->recordOccurrence('fp-1', 'Nightly import is stuck.', self::NOW));
+        $this->assertTrue($this->resource()->recordOccurrence('fp-1', 'Nightly import is stuck.', self::NOW));
     }
 
     public function testARepeatedFaultIsNotReportedAsNewlyRaised(): void
     {
         $this->rowCount = 2;
 
-        self::assertFalse($this->resource()->recordOccurrence('fp-1', 'Nightly import is stuck.', self::NOW));
+        $this->assertFalse($this->resource()->recordOccurrence('fp-1', 'Nightly import is stuck.', self::NOW));
     }
 
     /**
@@ -148,19 +148,19 @@ class AlertTest extends TestCase
         $this->resource()->recordOccurrence('fp-1', 'Nightly import is stuck.', self::NOW);
 
         $update = $this->upserts[0]['update'];
-        self::assertArrayHasKey(AlertInterface::OCCURRENCES, $update);
-        self::assertArrayHasKey(AlertInterface::MESSAGE, $update);
-        self::assertArrayHasKey(AlertInterface::LAST_SEEN_AT, $update);
-        self::assertArrayNotHasKey(AlertInterface::FIRST_SEEN_AT, $update);
-        self::assertArrayNotHasKey(AlertInterface::STATUS, $update);
+        $this->assertArrayHasKey(AlertInterface::OCCURRENCES, $update);
+        $this->assertArrayHasKey(AlertInterface::MESSAGE, $update);
+        $this->assertArrayHasKey(AlertInterface::LAST_SEEN_AT, $update);
+        $this->assertArrayNotHasKey(AlertInterface::FIRST_SEEN_AT, $update);
+        $this->assertArrayNotHasKey(AlertInterface::STATUS, $update);
     }
 
     public function testAnAlertIsLookedUpByItsFingerprint(): void
     {
         $this->row = ['alert_id' => 9, 'fingerprint' => 'fp-1'];
 
-        self::assertSame(['alert_id' => 9, 'fingerprint' => 'fp-1'], $this->resource()->loadByFingerprint('fp-1'));
-        self::assertSame(
+        $this->assertSame(['alert_id' => 9, 'fingerprint' => 'fp-1'], $this->resource()->loadByFingerprint('fp-1'));
+        $this->assertSame(
             [['condition' => AlertInterface::FINGERPRINT . ' = ?', 'value' => 'fp-1']],
             $this->conditions
         );
@@ -172,7 +172,7 @@ class AlertTest extends TestCase
      */
     public function testAnUnknownFingerprintIsNullRatherThanFalse(): void
     {
-        self::assertNull($this->resource()->loadByFingerprint('fp-unknown'));
+        $this->assertNull($this->resource()->loadByFingerprint('fp-unknown'));
     }
 
     /**
@@ -180,12 +180,12 @@ class AlertTest extends TestCase
      */
     public function testAlertsWhoseFaultHasStoppedAreResolved(): void
     {
-        self::assertSame(3, $this->resource()->resolveAllExcept(['fp-1'], self::NOW));
+        $this->assertSame(3, $this->resource()->resolveAllExcept(['fp-1'], self::NOW));
 
-        self::assertSame(AlertInterface::STATUS_RESOLVED, $this->updates[0]['values'][AlertInterface::STATUS]);
-        self::assertSame(self::NOW, $this->updates[0]['values'][AlertInterface::RESOLVED_AT]);
-        self::assertStringContainsString('NOT IN', $this->updates[0]['where']);
-        self::assertStringContainsString('fp-1', $this->updates[0]['where']);
+        $this->assertSame(AlertInterface::STATUS_RESOLVED, $this->updates[0]['values'][AlertInterface::STATUS]);
+        $this->assertSame(self::NOW, $this->updates[0]['values'][AlertInterface::RESOLVED_AT]);
+        $this->assertStringContainsString('NOT IN', $this->updates[0]['where']);
+        $this->assertStringContainsString('fp-1', $this->updates[0]['where']);
     }
 
     /**
@@ -196,32 +196,32 @@ class AlertTest extends TestCase
     {
         $this->resource()->resolveAllExcept([], self::NOW);
 
-        self::assertStringContainsString(AlertInterface::STATUS_OPEN, $this->updates[0]['where']);
-        self::assertStringContainsString(AlertInterface::STATUS_ACKNOWLEDGED, $this->updates[0]['where']);
-        self::assertStringNotContainsString('NOT IN', $this->updates[0]['where']);
+        $this->assertStringContainsString(AlertInterface::STATUS_OPEN, $this->updates[0]['where']);
+        $this->assertStringContainsString(AlertInterface::STATUS_ACKNOWLEDGED, $this->updates[0]['where']);
+        $this->assertStringNotContainsString('NOT IN', $this->updates[0]['where']);
     }
 
     public function testDuplicateActiveFingerprintsAreCollapsed(): void
     {
         $this->resource()->resolveAllExcept(['fp-1', 'fp-1', 'fp-2'], self::NOW);
 
-        self::assertSame(1, substr_count($this->updates[0]['where'], "'fp-1'"));
+        $this->assertSame(1, substr_count($this->updates[0]['where'], "'fp-1'"));
     }
 
     public function testAcknowledgingStampsTheAcknowledgementTime(): void
     {
         $this->resource()->setStatus([9], AlertInterface::STATUS_ACKNOWLEDGED, self::NOW);
 
-        self::assertSame(self::NOW, $this->updates[0]['values'][AlertInterface::ACKNOWLEDGED_AT]);
-        self::assertArrayNotHasKey(AlertInterface::RESOLVED_AT, $this->updates[0]['values']);
+        $this->assertSame(self::NOW, $this->updates[0]['values'][AlertInterface::ACKNOWLEDGED_AT]);
+        $this->assertArrayNotHasKey(AlertInterface::RESOLVED_AT, $this->updates[0]['values']);
     }
 
     public function testResolvingStampsTheResolutionTime(): void
     {
         $this->resource()->setStatus([9], AlertInterface::STATUS_RESOLVED, self::NOW);
 
-        self::assertSame(self::NOW, $this->updates[0]['values'][AlertInterface::RESOLVED_AT]);
-        self::assertArrayNotHasKey(AlertInterface::ACKNOWLEDGED_AT, $this->updates[0]['values']);
+        $this->assertSame(self::NOW, $this->updates[0]['values'][AlertInterface::RESOLVED_AT]);
+        $this->assertArrayNotHasKey(AlertInterface::ACKNOWLEDGED_AT, $this->updates[0]['values']);
     }
 
     /**
@@ -231,7 +231,7 @@ class AlertTest extends TestCase
     {
         $this->resource()->setStatus([9], AlertInterface::STATUS_OPEN, self::NOW);
 
-        self::assertSame([AlertInterface::STATUS => AlertInterface::STATUS_OPEN], $this->updates[0]['values']);
+        $this->assertSame([AlertInterface::STATUS => AlertInterface::STATUS_OPEN], $this->updates[0]['values']);
     }
 
     /**
@@ -240,8 +240,8 @@ class AlertTest extends TestCase
      */
     public function testAnEmptyIdSetIsANoOp(): void
     {
-        self::assertSame(0, $this->resource()->setStatus([], AlertInterface::STATUS_RESOLVED, self::NOW));
-        self::assertSame([], $this->updates);
+        $this->assertSame(0, $this->resource()->setStatus([], AlertInterface::STATUS_RESOLVED, self::NOW));
+        $this->assertSame([], $this->updates);
     }
 
     /**
@@ -252,7 +252,7 @@ class AlertTest extends TestCase
     {
         $this->resource()->setStatus(['9', 9, '10'], AlertInterface::STATUS_RESOLVED, self::NOW);
 
-        self::assertStringContainsString("'9','10'", $this->updates[0]['where']);
+        $this->assertStringContainsString("'9','10'", $this->updates[0]['where']);
     }
 
     /**
@@ -261,11 +261,11 @@ class AlertTest extends TestCase
      */
     public function testOnlyResolvedAlertsArePurged(): void
     {
-        self::assertSame(2, $this->resource()->purgeResolvedBefore('2026-07-27 12:00:00'));
+        $this->assertSame(2, $this->resource()->purgeResolvedBefore('2026-07-27 12:00:00'));
 
         $where = implode(' ', (array) $this->deletes[0]);
-        self::assertStringContainsString(AlertInterface::STATUS_RESOLVED, $where);
-        self::assertStringContainsString('2026-07-27 12:00:00', $where);
+        $this->assertStringContainsString(AlertInterface::STATUS_RESOLVED, $where);
+        $this->assertStringContainsString('2026-07-27 12:00:00', $where);
     }
 
     private function resource(): Alert&MockObject

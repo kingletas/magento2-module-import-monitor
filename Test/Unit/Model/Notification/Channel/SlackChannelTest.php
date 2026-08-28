@@ -53,8 +53,8 @@ class SlackChannelTest extends TestCase
     {
         $channel = $this->channel();
 
-        self::assertInstanceOf(AlertChannelInterface::class, $channel);
-        self::assertSame('slack', $channel->getCode());
+        $this->assertInstanceOf(AlertChannelInterface::class, $channel);
+        $this->assertSame('slack', $channel->getCode());
     }
 
     /**
@@ -63,18 +63,18 @@ class SlackChannelTest extends TestCase
      */
     public function testTheChannelIsOffUntilSlackIsFullyConfigured(): void
     {
-        self::assertTrue($this->channel()->isEnabled());
-        self::assertFalse($this->channel(token: '')->isEnabled());
-        self::assertFalse($this->channel(channel: '')->isEnabled());
-        self::assertFalse($this->channel(enabled: false)->isEnabled());
+        $this->assertTrue($this->channel()->isEnabled());
+        $this->assertFalse($this->channel(token: '')->isEnabled());
+        $this->assertFalse($this->channel(channel: '')->isEnabled());
+        $this->assertFalse($this->channel(enabled: false)->isEnabled());
     }
 
     public function testTheMessageIsPostedToTheChatApi(): void
     {
-        self::assertTrue($this->channel()->send($this->message()));
+        $this->assertTrue($this->channel()->send($this->message()));
 
-        self::assertCount(1, $this->posts);
-        self::assertSame('https://slack.com/api/chat.postMessage', $this->posts[0]['url']);
+        $this->assertCount(1, $this->posts);
+        $this->assertSame('https://slack.com/api/chat.postMessage', $this->posts[0]['url']);
     }
 
     public function testThePayloadCarriesTheChannelAndThePlainTextRendering(): void
@@ -83,8 +83,8 @@ class SlackChannelTest extends TestCase
 
         $payload = (array) (new Json())->unserialize($this->posts[0]['body']);
 
-        self::assertSame('ops-alerts', $payload['channel']);
-        self::assertStringContainsString('No feed file for today.', $payload['text']);
+        $this->assertSame('ops-alerts', $payload['channel']);
+        $this->assertStringContainsString('No feed file for today.', $payload['text']);
     }
 
     /**
@@ -95,16 +95,16 @@ class SlackChannelTest extends TestCase
     {
         $this->channel()->send($this->message());
 
-        self::assertSame('Bearer xoxb-real-token', $this->headers['Authorization']); // pragma: allowlist secret
-        self::assertStringNotContainsString('xoxb', $this->posts[0]['url']);
-        self::assertStringNotContainsString('xoxb', $this->posts[0]['body']);
+        $this->assertSame('Bearer xoxb-real-token', $this->headers['Authorization']); // pragma: allowlist secret
+        $this->assertStringNotContainsString('xoxb', $this->posts[0]['url']);
+        $this->assertStringNotContainsString('xoxb', $this->posts[0]['body']);
     }
 
     public function testTheRequestDeclaresItsJsonBody(): void
     {
         $this->channel()->send($this->message());
 
-        self::assertStringContainsString('application/json', $this->headers['Content-Type']);
+        $this->assertStringContainsString('application/json', $this->headers['Content-Type']);
     }
 
     /**
@@ -115,8 +115,8 @@ class SlackChannelTest extends TestCase
     {
         $this->channel()->send($this->message());
 
-        self::assertNotNull($this->timeout);
-        self::assertGreaterThan(0, $this->timeout);
+        $this->assertNotNull($this->timeout);
+        $this->assertGreaterThan(0, $this->timeout);
     }
 
     /**
@@ -126,17 +126,17 @@ class SlackChannelTest extends TestCase
     {
         $this->body = '{"ok":false,"error":"channel_not_found"}';
 
-        self::assertFalse($this->channel()->send($this->message()));
-        self::assertCount(1, $this->logger->errors);
-        self::assertStringContainsString('channel_not_found', $this->logger->errors[0]);
+        $this->assertFalse($this->channel()->send($this->message()));
+        $this->assertCount(1, $this->logger->errors);
+        $this->assertStringContainsString('channel_not_found', $this->logger->errors[0]);
     }
 
     public function testAnUnexpectedStatusIsReportedWithItsCode(): void
     {
         $this->status = 503;
 
-        self::assertFalse($this->channel()->send($this->message()));
-        self::assertStringContainsString('503', $this->logger->errors[0]);
+        $this->assertFalse($this->channel()->send($this->message()));
+        $this->assertStringContainsString('503', $this->logger->errors[0]);
     }
 
     /**
@@ -147,16 +147,16 @@ class SlackChannelTest extends TestCase
     {
         $this->body = '<html>Gateway timeout</html>';
 
-        self::assertFalse($this->channel()->send($this->message()));
-        self::assertStringContainsString('unparseable', $this->logger->errors[0]);
+        $this->assertFalse($this->channel()->send($this->message()));
+        $this->assertStringContainsString('unparseable', $this->logger->errors[0]);
     }
 
     public function testAResponseThatIsNotAnObjectIsRejected(): void
     {
         $this->body = '"ok"';
 
-        self::assertFalse($this->channel()->send($this->message()));
-        self::assertCount(1, $this->logger->errors);
+        $this->assertFalse($this->channel()->send($this->message()));
+        $this->assertCount(1, $this->logger->errors);
     }
 
     /**
@@ -167,8 +167,8 @@ class SlackChannelTest extends TestCase
     {
         $this->postFailure = new RuntimeException('Connection timed out');
 
-        self::assertFalse($this->channel()->send($this->message()));
-        self::assertCount(1, $this->logger->errors);
+        $this->assertFalse($this->channel()->send($this->message()));
+        $this->assertCount(1, $this->logger->errors);
     }
 
     private function message(): AlertMessage

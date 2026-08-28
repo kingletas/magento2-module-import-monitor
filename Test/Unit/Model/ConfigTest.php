@@ -25,13 +25,13 @@ class ConfigTest extends TestCase
             $this->encryptor()
         );
 
-        self::assertTrue($config->isEnabled());
+        $this->assertTrue($config->isEnabled());
     }
 
     public function testAnUnconfiguredStoreHasTheFeatureOff(): void
     {
-        self::assertFalse($this->config([])->isEnabled());
-        self::assertFalse($this->config(['general/enabled' => '0'])->isEnabled());
+        $this->assertFalse($this->config([])->isEnabled());
+        $this->assertFalse($this->config(['general/enabled' => '0'])->isEnabled());
     }
 
     /**
@@ -39,8 +39,8 @@ class ConfigTest extends TestCase
      */
     public function testAGenerousStuckThresholdIsHonouredRatherThanCapped(): void
     {
-        self::assertSame(8, $this->config(['general/stuck_threshold_hours' => '8'])->getStuckThresholdHours());
-        self::assertSame(168, $this->config(['general/stuck_threshold_hours' => '168'])->getStuckThresholdHours());
+        $this->assertSame(8, $this->config(['general/stuck_threshold_hours' => '8'])->getStuckThresholdHours());
+        $this->assertSame(168, $this->config(['general/stuck_threshold_hours' => '168'])->getStuckThresholdHours());
     }
 
     /**
@@ -50,7 +50,7 @@ class ConfigTest extends TestCase
     public function testANonsensicalStuckThresholdFallsBackToTheDefault(): void
     {
         foreach (['0', '-4', '', 'soon'] as $value) {
-            self::assertSame(
+            $this->assertSame(
                 Config::DEFAULT_STUCK_THRESHOLD_HOURS,
                 $this->config(['general/stuck_threshold_hours' => $value])->getStuckThresholdHours(),
                 sprintf('"%s" should fall back to the default.', $value)
@@ -64,8 +64,8 @@ class ConfigTest extends TestCase
      */
     public function testTheFeedStrictHourDefaultsToTheEvening(): void
     {
-        self::assertSame(Config::DEFAULT_STRICT_HOUR, $this->config([])->getFeedStrictHour());
-        self::assertGreaterThan(12, Config::DEFAULT_STRICT_HOUR);
+        $this->assertSame(Config::DEFAULT_STRICT_HOUR, $this->config([])->getFeedStrictHour());
+        $this->assertGreaterThan(12, Config::DEFAULT_STRICT_HOUR);
     }
 
     /**
@@ -74,9 +74,9 @@ class ConfigTest extends TestCase
      */
     public function testAnHourOutsideTheDayIsClampedIntoIt(): void
     {
-        self::assertSame(0, $this->config(['general/feed_strict_hour' => '-3'])->getFeedStrictHour());
-        self::assertSame(23, $this->config(['general/feed_strict_hour' => '47'])->getFeedStrictHour());
-        self::assertSame(6, $this->config(['general/feed_strict_hour' => '6'])->getFeedStrictHour());
+        $this->assertSame(0, $this->config(['general/feed_strict_hour' => '-3'])->getFeedStrictHour());
+        $this->assertSame(23, $this->config(['general/feed_strict_hour' => '47'])->getFeedStrictHour());
+        $this->assertSame(6, $this->config(['general/feed_strict_hour' => '6'])->getFeedStrictHour());
     }
 
     /**
@@ -85,34 +85,34 @@ class ConfigTest extends TestCase
      */
     public function testMidnightIsAValidStrictHour(): void
     {
-        self::assertSame(0, $this->config(['general/feed_strict_hour' => '0'])->getFeedStrictHour());
+        $this->assertSame(0, $this->config(['general/feed_strict_hour' => '0'])->getFeedStrictHour());
     }
 
     public function testTheRetentionWindowFallsBackToTheDefaultWhenNonsensical(): void
     {
-        self::assertSame(Config::DEFAULT_RETENTION_DAYS, $this->config([])->getRetentionDays());
-        self::assertSame(
+        $this->assertSame(Config::DEFAULT_RETENTION_DAYS, $this->config([])->getRetentionDays());
+        $this->assertSame(
             Config::DEFAULT_RETENTION_DAYS,
             $this->config(['general/retention_days' => '0'])->getRetentionDays()
         );
-        self::assertSame(7, $this->config(['general/retention_days' => '7'])->getRetentionDays());
+        $this->assertSame(7, $this->config(['general/retention_days' => '7'])->getRetentionDays());
     }
 
     public function testTheRecipientsAreSplitAndTrimmed(): void
     {
         $config = $this->config(['notification/recipients' => 'a@example.test , b@example.test ,,']);
 
-        self::assertSame(['a@example.test', 'b@example.test'], $config->getRecipients());
-        self::assertSame([], $this->config([])->getRecipients());
+        $this->assertSame(['a@example.test', 'b@example.test'], $config->getRecipients());
+        $this->assertSame([], $this->config([])->getRecipients());
     }
 
     public function testTheTemplatesAndSenderFallBackToShippedDefaults(): void
     {
         $config = $this->config([]);
 
-        self::assertSame('general', $config->getSenderIdentity());
-        self::assertSame('commerce_import_monitor_alert', $config->getAlertTemplate());
-        self::assertSame('commerce_import_monitor_resolved', $config->getResolvedTemplate());
+        $this->assertSame('general', $config->getSenderIdentity());
+        $this->assertSame('commerce_import_monitor_alert', $config->getAlertTemplate());
+        $this->assertSame('commerce_import_monitor_resolved', $config->getResolvedTemplate());
     }
 
     /**
@@ -126,8 +126,8 @@ class ConfigTest extends TestCase
             'notification/resolved_template' => 'acme_resolved',
         ]);
 
-        self::assertSame('acme_alert', $config->getAlertTemplate());
-        self::assertSame('acme_resolved', $config->getResolvedTemplate());
+        $this->assertSame('acme_alert', $config->getAlertTemplate());
+        $this->assertSame('acme_resolved', $config->getResolvedTemplate());
     }
 
     /**
@@ -136,8 +136,8 @@ class ConfigTest extends TestCase
      */
     public function testTheHostnameIsWithheldUnlessTheStoreAsksForIt(): void
     {
-        self::assertFalse($this->config([])->shouldIncludeHostname());
-        self::assertTrue($this->config(['notification/include_hostname' => '1'])->shouldIncludeHostname());
+        $this->assertFalse($this->config([])->shouldIncludeHostname());
+        $this->assertTrue($this->config(['notification/include_hostname' => '1'])->shouldIncludeHostname());
     }
 
     /**
@@ -145,7 +145,7 @@ class ConfigTest extends TestCase
      */
     public function testTheSlackTokenIsDecryptedOnTheWayOut(): void
     {
-        self::assertSame(
+        $this->assertSame(
             'xoxb-real-token', // pragma: allowlist secret
             $this->config(['slack/token' => 'encrypted:xoxb-real-token'])->getSlackToken() // pragma: allowlist secret
         );
@@ -153,7 +153,7 @@ class ConfigTest extends TestCase
 
     public function testAnUnsetSlackTokenIsEmptyRatherThanDecrypted(): void
     {
-        self::assertSame('', $this->config([])->getSlackToken());
+        $this->assertSame('', $this->config([])->getSlackToken());
     }
 
     /**
@@ -162,8 +162,8 @@ class ConfigTest extends TestCase
      */
     public function testTheChannelIsNormalisedForTheApi(): void
     {
-        self::assertSame('ops-alerts', $this->config(['slack/channel' => '#ops-alerts'])->getSlackChannel());
-        self::assertSame('ops-alerts', $this->config(['slack/channel' => 'ops-alerts'])->getSlackChannel());
+        $this->assertSame('ops-alerts', $this->config(['slack/channel' => '#ops-alerts'])->getSlackChannel());
+        $this->assertSame('ops-alerts', $this->config(['slack/channel' => 'ops-alerts'])->getSlackChannel());
     }
 
     /**
@@ -171,14 +171,14 @@ class ConfigTest extends TestCase
      */
     public function testSlackIsOnlyEnabledOnceItIsFullyConfigured(): void
     {
-        self::assertFalse($this->config(['slack/enabled' => '1'])->isSlackEnabled());
-        self::assertFalse(
+        $this->assertFalse($this->config(['slack/enabled' => '1'])->isSlackEnabled());
+        $this->assertFalse(
             $this->config(['slack/enabled' => '1', 'slack/token' => 'encrypted:xoxb'])->isSlackEnabled()
         );
-        self::assertFalse(
+        $this->assertFalse(
             $this->config(['slack/enabled' => '1', 'slack/channel' => '#ops'])->isSlackEnabled()
         );
-        self::assertTrue(
+        $this->assertTrue(
             $this->config([
                 'slack/enabled' => '1',
                 'slack/token' => 'encrypted:xoxb',
@@ -189,7 +189,7 @@ class ConfigTest extends TestCase
 
     public function testSlackStaysOffWhenTheFlagIsNotSetEvenIfCredentialsExist(): void
     {
-        self::assertFalse(
+        $this->assertFalse(
             $this->config(['slack/token' => 'encrypted:xoxb', 'slack/channel' => '#ops'])->isSlackEnabled()
         );
     }

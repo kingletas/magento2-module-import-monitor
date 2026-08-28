@@ -31,9 +31,9 @@ class AlertMessageHtmlRendererTest extends TestCase
     {
         $html = $this->renderer->render($this->message());
 
-        self::assertStringStartsWith('<ul>', $html);
-        self::assertStringEndsWith('</ul>', $html);
-        self::assertSame(2, substr_count($html, '<li>'));
+        $this->assertStringStartsWith('<ul>', $html);
+        $this->assertStringEndsWith('</ul>', $html);
+        $this->assertSame(2, substr_count($html, '<li>'));
     }
 
     /**
@@ -50,8 +50,8 @@ class AlertMessageHtmlRendererTest extends TestCase
 
         $html = $this->renderer->render($message);
 
-        self::assertStringNotContainsString('<script>', $html);
-        self::assertStringContainsString('&lt;script&gt;', $html);
+        $this->assertStringNotContainsString('<script>', $html);
+        $this->assertStringContainsString('&lt;script&gt;', $html);
     }
 
     /**
@@ -71,13 +71,13 @@ class AlertMessageHtmlRendererTest extends TestCase
 
         $html = $this->renderer->render($message);
 
-        self::assertStringNotContainsString('<img', $html);
-        self::assertStringContainsString('&quot;', $html);
+        $this->assertStringNotContainsString('<img', $html);
+        $this->assertStringContainsString('&quot;', $html);
     }
 
     public function testAnEmptyMessageStillProducesAWellFormedList(): void
     {
-        self::assertSame(
+        $this->assertSame(
             '<ul></ul>',
             $this->renderer->render(new AlertMessage('All clear', [], '2026-08-26 06:00:00'))
         );
@@ -97,7 +97,7 @@ class AlertMessageHtmlRendererTest extends TestCase
             ['store_id' => 2]
         );
 
-        self::assertStringNotContainsString('store_id', $this->renderer->render($message));
+        $this->assertStringNotContainsString('store_id', $this->renderer->render($message));
     }
 
     private function message(): AlertMessage

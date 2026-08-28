@@ -16,7 +16,7 @@ use RuntimeException;
  *
  * @SuppressWarnings(PHPMD.MissingConstructor)
  */
-final class ScriptedStateLoader extends ProductStateLoader
+class ScriptedStateLoader extends ProductStateLoader
 {
     /** @var array<int, array<string, ProductState>|null> */
     private array $answers;

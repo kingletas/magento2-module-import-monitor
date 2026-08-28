@@ -35,7 +35,7 @@ use RuntimeException;
 /**
  * An import breaks, somebody is told once, and then it is fixed.
  */
-final class AlertLifecycleTest extends TestCase
+class AlertLifecycleTest extends TestCase
 {
     private const SECTION = 'commerce_import_monitor';
     private const NOW = '2026-08-27 09:00:00';
@@ -78,9 +78,9 @@ final class AlertLifecycleTest extends TestCase
 
         $raised = $this->runMonitor();
 
-        self::assertSame(1, $raised);
-        self::assertCount(1, $this->sent);
-        self::assertSame(AlertInterface::STATUS_OPEN, $this->alerts->statusOf($this->fingerprintOf('feed_file')));
+        $this->assertSame(1, $raised);
+        $this->assertCount(1, $this->sent);
+        $this->assertSame(AlertInterface::STATUS_OPEN, $this->alerts->statusOf($this->fingerprintOf('feed_file')));
     }
 
     /**
@@ -94,8 +94,8 @@ final class AlertLifecycleTest extends TestCase
             $this->runMonitor();
         }
 
-        self::assertCount(1, $this->sent, 'Twelve failing runs, one message.');
-        self::assertSame(12, $this->alerts->occurrencesOf($this->fingerprintOf('feed_file')));
+        $this->assertCount(1, $this->sent, 'Twelve failing runs, one message.');
+        $this->assertSame(12, $this->alerts->occurrencesOf($this->fingerprintOf('feed_file')));
     }
 
     /**
@@ -113,7 +113,7 @@ final class AlertLifecycleTest extends TestCase
             $this->runMonitor();
         }
 
-        self::assertCount(1, $this->sent);
+        $this->assertCount(1, $this->sent);
     }
 
     /**
@@ -127,9 +127,9 @@ final class AlertLifecycleTest extends TestCase
 
         $raised = $this->runMonitor();
 
-        self::assertSame(2, $raised);
-        self::assertCount(1, $this->sent);
-        self::assertSame(2, $this->sent[0]['items']);
+        $this->assertSame(2, $raised);
+        $this->assertCount(1, $this->sent);
+        $this->assertSame(2, $this->sent[0]['items']);
     }
 
     /**
@@ -143,7 +143,7 @@ final class AlertLifecycleTest extends TestCase
         $this->world['feed_file'] = new CheckResult(true, 'feed_file');
         $this->runMonitor();
 
-        self::assertSame(AlertInterface::STATUS_RESOLVED, $this->alerts->statusOf($this->fingerprintOf('feed_file')));
+        $this->assertSame(AlertInterface::STATUS_RESOLVED, $this->alerts->statusOf($this->fingerprintOf('feed_file')));
     }
 
     /**
@@ -163,7 +163,7 @@ final class AlertLifecycleTest extends TestCase
         $this->world['feed_file'] = $failing;
         $this->runMonitor();
 
-        self::assertCount(2, $this->sent);
+        $this->assertCount(2, $this->sent);
     }
 
     /**
@@ -177,8 +177,8 @@ final class AlertLifecycleTest extends TestCase
 
         $this->runMonitor();
 
-        self::assertSame(AlertInterface::STATUS_OPEN, $this->alerts->statusOf($this->fingerprintOf('task_run')));
-        self::assertNotSame([], $this->logger->errors, 'The thrown check should be reported.');
+        $this->assertSame(AlertInterface::STATUS_OPEN, $this->alerts->statusOf($this->fingerprintOf('task_run')));
+        $this->assertNotSame([], $this->logger->errors, 'The thrown check should be reported.');
     }
 
     /**
@@ -192,7 +192,7 @@ final class AlertLifecycleTest extends TestCase
 
         $this->runMonitor();
 
-        self::assertSame(AlertInterface::STATUS_OPEN, $this->alerts->statusOf($this->fingerprintOf('feed_file')));
+        $this->assertSame(AlertInterface::STATUS_OPEN, $this->alerts->statusOf($this->fingerprintOf('feed_file')));
     }
 
     public function testOneUnreachableChannelDoesNotStopTheRest(): void
@@ -203,7 +203,7 @@ final class AlertLifecycleTest extends TestCase
 
         $this->runMonitor();
 
-        self::assertSame(['slack'], array_column($this->sent, 'channel'));
+        $this->assertSame(['slack'], array_column($this->sent, 'channel'));
     }
 
     public function testADisabledChannelIsNotAsked(): void
@@ -213,7 +213,7 @@ final class AlertLifecycleTest extends TestCase
 
         $this->runMonitor();
 
-        self::assertSame(['email'], array_column($this->sent, 'channel'));
+        $this->assertSame(['email'], array_column($this->sent, 'channel'));
     }
 
     public function testWithMonitoringOffNothingIsRaised(): void
@@ -221,9 +221,9 @@ final class AlertLifecycleTest extends TestCase
         $this->settings[self::SECTION . '/general/enabled'] = '0';
         $this->world['feed_file'] = $this->failing('feed_file', 'nightly_feed', 'The nightly feed is missing.');
 
-        self::assertSame(0, $this->runMonitor());
-        self::assertSame([], $this->sent);
-        self::assertSame([], $this->alerts->rows);
+        $this->assertSame(0, $this->runMonitor());
+        $this->assertSame([], $this->sent);
+        $this->assertSame([], $this->alerts->rows);
     }
 
     /**
@@ -236,10 +236,10 @@ final class AlertLifecycleTest extends TestCase
 
         $results = (new ImportMonitor($this->checkRunner(), $this->alertManager()))->run();
 
-        self::assertCount(1, $results);
-        self::assertFalse($results[0]->isHealthy);
-        self::assertSame(AlertInterface::STATUS_OPEN, $this->alerts->statusOf($this->fingerprintOf('feed_file')));
-        self::assertCount(1, $this->sent);
+        $this->assertCount(1, $results);
+        $this->assertFalse($results[0]->isHealthy);
+        $this->assertSame(AlertInterface::STATUS_OPEN, $this->alerts->statusOf($this->fingerprintOf('feed_file')));
+        $this->assertCount(1, $this->sent);
     }
 
     public function testACorrectlySignedAcknowledgementSilencesTheAlert(): void
@@ -250,8 +250,8 @@ final class AlertLifecycleTest extends TestCase
         $alertId = (int) array_key_first($this->alerts->rows);
         $signer = $this->signer();
 
-        self::assertTrue($this->alertManager()->acknowledge($alertId, $signer->sign($alertId), $signer));
-        self::assertSame(
+        $this->assertTrue($this->alertManager()->acknowledge($alertId, $signer->sign($alertId), $signer));
+        $this->assertSame(
             AlertInterface::STATUS_ACKNOWLEDGED,
             $this->alerts->statusOf($this->fingerprintOf('feed_file'))
         );
@@ -270,8 +270,8 @@ final class AlertLifecycleTest extends TestCase
         $ids = array_keys($this->alerts->rows);
         $signer = $this->signer();
 
-        self::assertFalse($this->alertManager()->acknowledge((int) $ids[0], $signer->sign((int) $ids[1]), $signer));
-        self::assertSame(AlertInterface::STATUS_OPEN, $this->alerts->statusOf($this->fingerprintOf('feed_file')));
+        $this->assertFalse($this->alertManager()->acknowledge((int) $ids[0], $signer->sign((int) $ids[1]), $signer));
+        $this->assertSame(AlertInterface::STATUS_OPEN, $this->alerts->statusOf($this->fingerprintOf('feed_file')));
     }
 
     public function testAnAlteredAcknowledgementDoesNothing(): void
@@ -283,9 +283,9 @@ final class AlertLifecycleTest extends TestCase
         $signer = $this->signer();
         $manager = $this->alertManager();
 
-        self::assertFalse($manager->acknowledge($alertId, '', $signer));
-        self::assertFalse($manager->acknowledge($alertId, 'deadbeef', $signer));
-        self::assertFalse($manager->acknowledge(0, $signer->sign(0), $signer));
+        $this->assertFalse($manager->acknowledge($alertId, '', $signer));
+        $this->assertFalse($manager->acknowledge($alertId, 'deadbeef', $signer));
+        $this->assertFalse($manager->acknowledge(0, $signer->sign(0), $signer));
     }
 
     /**

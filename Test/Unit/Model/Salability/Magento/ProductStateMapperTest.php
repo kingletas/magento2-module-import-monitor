@@ -32,14 +32,14 @@ class ProductStateMapperTest extends TestCase
             5.0
         );
 
-        self::assertTrue($state->exists);
-        self::assertTrue($state->isSimple);
-        self::assertTrue($state->isEnabled);
-        self::assertTrue($state->isSalable);
-        self::assertSame('A', $state->siteStatus);
-        self::assertSame('M', $state->masterStatus);
-        self::assertSame(5.0, $state->quantity);
-        self::assertTrue($state->permitsSale());
+        $this->assertTrue($state->exists);
+        $this->assertTrue($state->isSimple);
+        $this->assertTrue($state->isEnabled);
+        $this->assertTrue($state->isSalable);
+        $this->assertSame('A', $state->siteStatus);
+        $this->assertSame('M', $state->masterStatus);
+        $this->assertSame(5.0, $state->quantity);
+        $this->assertTrue($state->permitsSale());
     }
 
     public function testSalabilityAndQuantityComeFromTheProviderNotTheRow(): void
@@ -50,17 +50,17 @@ class ProductStateMapperTest extends TestCase
             0.0
         );
 
-        self::assertFalse($state->isSalable);
-        self::assertSame(0.0, $state->quantity);
+        $this->assertFalse($state->isSalable);
+        $this->assertSame(0.0, $state->quantity);
     }
 
     public function testAnEmptyRowStillExistsButCannotBeSold(): void
     {
         $state = $this->mapper->fromRow([], false, 0.0);
 
-        self::assertTrue($state->exists);
-        self::assertFalse($state->isSimple);
-        self::assertSame(DiscrepancyReason::NotSimple, $state->salabilityFailure());
+        $this->assertTrue($state->exists);
+        $this->assertFalse($state->isSimple);
+        $this->assertSame(DiscrepancyReason::NotSimple, $state->salabilityFailure());
     }
 
     /**
@@ -72,15 +72,15 @@ class ProductStateMapperTest extends TestCase
         $mapped = $this->mapper->fromRow([], false, 0.0);
         $absent = new ProductState(exists: false);
 
-        self::assertNotSame($absent->salabilityFailure(), $mapped->salabilityFailure());
-        self::assertSame(DiscrepancyReason::Missing, $absent->salabilityFailure());
+        $this->assertNotSame($absent->salabilityFailure(), $mapped->salabilityFailure());
+        $this->assertSame(DiscrepancyReason::Missing, $absent->salabilityFailure());
     }
 
     public function testAnyStatusOtherThanEnabledReadsAsDisabled(): void
     {
         $state = $this->mapper->fromRow(['type_id' => 'simple', 'status' => 2], true, 1.0);
 
-        self::assertFalse($state->isEnabled);
-        self::assertSame(DiscrepancyReason::Disabled, $state->salabilityFailure());
+        $this->assertFalse($state->isEnabled);
+        $this->assertSame(DiscrepancyReason::Disabled, $state->salabilityFailure());
     }
 }

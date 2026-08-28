@@ -28,12 +28,12 @@ class AlertTest extends TestCase
     {
         $declared = (new ReflectionProperty(Alert::class, '_resourceName'))->getValue($this->entity());
 
-        self::assertSame(AlertResource::class, $declared);
+        $this->assertSame(AlertResource::class, $declared);
     }
 
     public function testTheEntityIsKeyedOnTheAlertId(): void
     {
-        self::assertSame(AlertInterface::ALERT_ID, $this->entity()->getIdFieldName());
+        $this->assertSame(AlertInterface::ALERT_ID, $this->entity()->getIdFieldName());
     }
 
     public function testEveryFieldRoundTripsThroughItsSetter(): void
@@ -49,15 +49,15 @@ class AlertTest extends TestCase
             ->setAcknowledgedAt('2026-08-26 07:00:00')
             ->setResolvedAt('2026-08-26 08:00:00');
 
-        self::assertSame(9, $alert->getAlertId());
-        self::assertSame('abc123', $alert->getFingerprint());
-        self::assertSame('Supplier feed missing.', $alert->getMessage());
-        self::assertSame(AlertInterface::STATUS_ACKNOWLEDGED, $alert->getStatus());
-        self::assertSame(4, $alert->getOccurrences());
-        self::assertSame('2026-08-20 06:00:00', $alert->getFirstSeenAt());
-        self::assertSame('2026-08-26 06:00:00', $alert->getLastSeenAt());
-        self::assertSame('2026-08-26 07:00:00', $alert->getAcknowledgedAt());
-        self::assertSame('2026-08-26 08:00:00', $alert->getResolvedAt());
+        $this->assertSame(9, $alert->getAlertId());
+        $this->assertSame('abc123', $alert->getFingerprint());
+        $this->assertSame('Supplier feed missing.', $alert->getMessage());
+        $this->assertSame(AlertInterface::STATUS_ACKNOWLEDGED, $alert->getStatus());
+        $this->assertSame(4, $alert->getOccurrences());
+        $this->assertSame('2026-08-20 06:00:00', $alert->getFirstSeenAt());
+        $this->assertSame('2026-08-26 06:00:00', $alert->getLastSeenAt());
+        $this->assertSame('2026-08-26 07:00:00', $alert->getAcknowledgedAt());
+        $this->assertSame('2026-08-26 08:00:00', $alert->getResolvedAt());
     }
 
     /**
@@ -67,15 +67,15 @@ class AlertTest extends TestCase
     {
         $alert = $this->entity();
 
-        self::assertSame(AlertInterface::STATUS_OPEN, $alert->getStatus());
-        self::assertTrue($alert->isOpen());
+        $this->assertSame(AlertInterface::STATUS_OPEN, $alert->getStatus());
+        $this->assertTrue($alert->isOpen());
     }
 
     public function testOnlyAnOpenAlertIsOpen(): void
     {
-        self::assertFalse($this->entity()->setStatus(AlertInterface::STATUS_ACKNOWLEDGED)->isOpen());
-        self::assertFalse($this->entity()->setStatus(AlertInterface::STATUS_RESOLVED)->isOpen());
-        self::assertTrue($this->entity()->setStatus(AlertInterface::STATUS_OPEN)->isOpen());
+        $this->assertFalse($this->entity()->setStatus(AlertInterface::STATUS_ACKNOWLEDGED)->isOpen());
+        $this->assertFalse($this->entity()->setStatus(AlertInterface::STATUS_RESOLVED)->isOpen());
+        $this->assertTrue($this->entity()->setStatus(AlertInterface::STATUS_OPEN)->isOpen());
     }
 
     /**
@@ -88,8 +88,8 @@ class AlertTest extends TestCase
         $alert->setData(AlertInterface::ALERT_ID, '9');
         $alert->setData(AlertInterface::OCCURRENCES, '4');
 
-        self::assertSame(9, $alert->getAlertId());
-        self::assertSame(4, $alert->getOccurrences());
+        $this->assertSame(9, $alert->getAlertId());
+        $this->assertSame(4, $alert->getOccurrences());
     }
 
     /**
@@ -99,26 +99,26 @@ class AlertTest extends TestCase
     {
         $alert = $this->entity();
 
-        self::assertNull($alert->getAcknowledgedAt());
-        self::assertNull($alert->getResolvedAt());
-        self::assertNull($alert->getFirstSeenAt());
+        $this->assertNull($alert->getAcknowledgedAt());
+        $this->assertNull($alert->getResolvedAt());
+        $this->assertNull($alert->getFirstSeenAt());
 
         $alert->setData(AlertInterface::ACKNOWLEDGED_AT, '');
-        self::assertNull($alert->getAcknowledgedAt());
+        $this->assertNull($alert->getAcknowledgedAt());
     }
 
     public function testAnUnsavedAlertHasNoIdRatherThanZero(): void
     {
-        self::assertNull($this->entity()->getAlertId());
+        $this->assertNull($this->entity()->getAlertId());
     }
 
     public function testAFreshAlertHasSeenTheFaultNoTimesAndCarriesNoText(): void
     {
         $alert = $this->entity();
 
-        self::assertSame(0, $alert->getOccurrences());
-        self::assertSame('', $alert->getFingerprint());
-        self::assertSame('', $alert->getMessage());
+        $this->assertSame(0, $alert->getOccurrences());
+        $this->assertSame('', $alert->getFingerprint());
+        $this->assertSame('', $alert->getMessage());
     }
 
     private function entity(): Alert

@@ -27,8 +27,8 @@ class CheckRunnerTest extends TestCase
             'b' => $this->check('b', false),
         ]);
 
-        self::assertCount(2, $runner->runAll());
-        self::assertCount(1, $runner->runFailures());
+        $this->assertCount(2, $runner->runAll());
+        $this->assertCount(1, $runner->runFailures());
     }
 
     /**
@@ -43,15 +43,15 @@ class CheckRunnerTest extends TestCase
         $broken->method('run')->willThrowException(new RuntimeException('disk gone'));
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(self::once())->method('error');
+        $logger->expects($this->once())->method('error');
 
         $runner = new CheckRunner($logger, ['broken' => $broken, 'ok' => $this->check('ok', true)]);
 
         $results = $runner->runAll();
 
-        self::assertCount(2, $results, 'The healthy check must still have run.');
-        self::assertFalse($results[0]->isHealthy);
-        self::assertStringContainsString('disk gone', (string) $results[0]->message);
+        $this->assertCount(2, $results, 'The healthy check must still have run.');
+        $this->assertFalse($results[0]->isHealthy);
+        $this->assertStringContainsString('disk gone', (string) $results[0]->message);
     }
 
     public function testRejectsANonCheckAtConstruction(): void
@@ -69,16 +69,16 @@ class CheckRunnerTest extends TestCase
         $first = new CheckResult(false, 'feed', 'overdue', "today's file has not arrived at 21:15");
         $second = new CheckResult(false, 'feed', 'overdue', "today's file has not arrived at 21:30");
 
-        self::assertSame($first->fingerprint, $second->fingerprint);
+        $this->assertSame($first->fingerprint, $second->fingerprint);
     }
 
     public function testDifferentFaultsGetDifferentFingerprints(): void
     {
-        self::assertNotSame(
+        $this->assertNotSame(
             (new CheckResult(false, 'feed', 'overdue', 'x'))->fingerprint,
             (new CheckResult(false, 'feed', 'empty', 'x'))->fingerprint
         );
-        self::assertNotSame(
+        $this->assertNotSame(
             (new CheckResult(false, 'feed', 'overdue', 'x'))->fingerprint,
             (new CheckResult(false, 'task', 'overdue', 'x'))->fingerprint
         );

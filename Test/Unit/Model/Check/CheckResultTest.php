@@ -20,9 +20,9 @@ class CheckResultTest extends TestCase
     {
         $result = new CheckResult(isHealthy: true, checkCode: 'feed');
 
-        self::assertTrue($result->isHealthy);
-        self::assertNull($result->fingerprint);
-        self::assertNull($result->message);
+        $this->assertTrue($result->isHealthy);
+        $this->assertNull($result->fingerprint);
+        $this->assertNull($result->message);
     }
 
     /**
@@ -34,8 +34,8 @@ class CheckResultTest extends TestCase
         $first = new CheckResult(false, 'feed', 'overdue', 'not arrived at 21:15');
         $second = new CheckResult(false, 'feed', 'overdue', 'not arrived at 21:30');
 
-        self::assertNotNull($first->fingerprint);
-        self::assertSame($first->fingerprint, $second->fingerprint);
+        $this->assertNotNull($first->fingerprint);
+        $this->assertSame($first->fingerprint, $second->fingerprint);
     }
 
     public function testAFailureNeedsBothASeedAndAMessage(): void

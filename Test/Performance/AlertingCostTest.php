@@ -33,7 +33,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * What being told costs.
  */
-final class AlertingCostTest extends TestCase
+class AlertingCostTest extends TestCase
 {
     use BudgetAssertions;
 
@@ -66,7 +66,7 @@ final class AlertingCostTest extends TestCase
      */
     public function testAHealthyPassCostsOneStatementWhateverIsBeingWatched(): void
     {
-        self::assertConstantCost(
+        $this->assertConstantCost(
             'alert-table statements for a healthy pass',
             function (int $checks): int {
                 $this->alerts = new CountingAlerts($this);
@@ -101,8 +101,8 @@ final class AlertingCostTest extends TestCase
             $manager->process($failing);
         }
 
-        self::assertSame($afterFirst['sends'], $this->sends, 'Two hours of a broken feed is one message.');
-        self::assertSame($afterFirst['signatures'], $this->signatures, 'And one acknowledge link.');
+        $this->assertSame($afterFirst['sends'], $this->sends, 'Two hours of a broken feed is one message.');
+        $this->assertSame($afterFirst['signatures'], $this->signatures, 'And one acknowledge link.');
     }
 
     /**
@@ -110,7 +110,7 @@ final class AlertingCostTest extends TestCase
      */
     public function testManyFaultsInOnePassAreOneMessage(): void
     {
-        self::assertConstantCost(
+        $this->assertConstantCost(
             'messages sent for one pass',
             function (int $faults): int {
                 $this->alerts = new InMemoryAlerts();
@@ -142,8 +142,8 @@ final class AlertingCostTest extends TestCase
             new CheckResult(false, 'task_run', 'price_import', 'The price import is stuck.'),
         ]);
 
-        self::assertSame(3, $this->sends, 'All three channels were used.');
-        self::assertCostAtMost('acknowledge links built for two faults across three channels', 2, $this->signatures);
+        $this->assertSame(3, $this->sends, 'All three channels were used.');
+        $this->assertCostAtMost('acknowledge links built for two faults across three channels', 2, $this->signatures);
     }
 
     /**
@@ -157,8 +157,8 @@ final class AlertingCostTest extends TestCase
         $manager = $this->manager(enabled: false);
         $manager->process([new CheckResult(false, 'feed_file', 'nightly_feed', 'The nightly feed is missing.')]);
 
-        self::assertSame(0, $this->rowLookups);
-        self::assertSame(0, $this->sends);
+        $this->assertSame(0, $this->rowLookups);
+        $this->assertSame(0, $this->sends);
     }
 
     /**

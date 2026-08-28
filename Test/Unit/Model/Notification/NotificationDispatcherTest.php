@@ -57,8 +57,8 @@ class NotificationDispatcherTest extends TestCase
             'slack' => $this->channel(),
         ])->dispatchRaised([$this->failure('feed_file', 'fp-feed', 'No feed file for today.')]);
 
-        self::assertCount(1, $this->delivered['email']);
-        self::assertCount(1, $this->delivered['slack']);
+        $this->assertCount(1, $this->delivered['email']);
+        $this->assertCount(1, $this->delivered['slack']);
     }
 
     public function testADisabledChannelIsSkipped(): void
@@ -68,8 +68,8 @@ class NotificationDispatcherTest extends TestCase
             'slack' => $this->channel(enabled: false),
         ])->dispatchRaised([$this->failure('feed_file', 'fp-feed', 'No feed file for today.')]);
 
-        self::assertCount(1, $this->delivered['email']);
-        self::assertArrayNotHasKey('slack', $this->delivered);
+        $this->assertCount(1, $this->delivered['email']);
+        $this->assertArrayNotHasKey('slack', $this->delivered);
     }
 
     /**
@@ -80,7 +80,7 @@ class NotificationDispatcherTest extends TestCase
     {
         $this->dispatcher(['email' => $this->channel()])->dispatchRaised([]);
 
-        self::assertSame([], $this->delivered);
+        $this->assertSame([], $this->delivered);
     }
 
     /**
@@ -92,7 +92,7 @@ class NotificationDispatcherTest extends TestCase
         $this->dispatcher(['email' => $this->channel()])
             ->dispatchRaised([new CheckResult(true, 'feed_file')]);
 
-        self::assertSame([], $this->delivered);
+        $this->assertSame([], $this->delivered);
     }
 
     public function testTheSubjectCountsTheFailures(): void
@@ -100,14 +100,14 @@ class NotificationDispatcherTest extends TestCase
         $dispatcher = $this->dispatcher(['email' => $this->channel()]);
 
         $dispatcher->dispatchRaised([$this->failure('feed_file', 'fp-feed', 'No feed file for today.')]);
-        self::assertSame('Import monitor: a check has failed', $this->delivered['email'][0]->subject);
+        $this->assertSame('Import monitor: a check has failed', $this->delivered['email'][0]->subject);
 
         $this->delivered = [];
         $dispatcher->dispatchRaised([
             $this->failure('feed_file', 'fp-feed', 'No feed file for today.'),
             $this->failure('import_task_run', 'fp-task', 'Nightly import is stuck.'),
         ]);
-        self::assertSame('Import monitor: 2 checks have failed', $this->delivered['email'][0]->subject);
+        $this->assertSame('Import monitor: 2 checks have failed', $this->delivered['email'][0]->subject);
     }
 
     /**
@@ -119,7 +119,7 @@ class NotificationDispatcherTest extends TestCase
         $this->dispatcher(['email' => $this->channel()])
             ->dispatchRaised([$this->failure('feed_file', 'fp-feed', 'No feed file for today.')]);
 
-        self::assertSame('2026-08-26 06:00:00 UTC', $this->delivered['email'][0]->occurredAt);
+        $this->assertSame('2026-08-26 06:00:00 UTC', $this->delivered['email'][0]->occurredAt);
     }
 
     /**
@@ -130,12 +130,12 @@ class NotificationDispatcherTest extends TestCase
     {
         $this->dispatcher(['email' => $this->channel()])
             ->dispatchRaised([$this->failure('feed_file', 'fp-feed', 'No feed file for today.')]);
-        self::assertNull($this->delivered['email'][0]->hostname);
+        $this->assertNull($this->delivered['email'][0]->hostname);
 
         $this->delivered = [];
         $this->dispatcher(['email' => $this->channel()], includeHostname: true)
             ->dispatchRaised([$this->failure('feed_file', 'fp-feed', 'No feed file for today.')]);
-        self::assertNotNull($this->delivered['email'][0]->hostname);
+        $this->assertNotNull($this->delivered['email'][0]->hostname);
     }
 
     /**
@@ -147,10 +147,10 @@ class NotificationDispatcherTest extends TestCase
         $this->dispatcher(['email' => $this->channel()])
             ->dispatchRaised([$this->failure('feed_file', 'fp-feed', 'No feed file for today.')]);
 
-        self::assertSame('importmonitor/alerts/acknowledge', $this->urls[0]['route']);
-        self::assertSame(9, $this->urls[0]['params']['id']);
-        self::assertSame('signature-for-9', $this->urls[0]['params']['token']);
-        self::assertTrue($this->urls[0]['params']['_secure']);
+        $this->assertSame('importmonitor/alerts/acknowledge', $this->urls[0]['route']);
+        $this->assertSame(9, $this->urls[0]['params']['id']);
+        $this->assertSame('signature-for-9', $this->urls[0]['params']['token']);
+        $this->assertTrue($this->urls[0]['params']['_secure']);
     }
 
     /**
@@ -165,8 +165,8 @@ class NotificationDispatcherTest extends TestCase
             ->dispatchRaised([$this->failure('feed_file', 'fp-feed', 'No feed file for today.')]);
 
         $items = $this->delivered['email'][0]->items;
-        self::assertCount(1, $items);
-        self::assertNull($items[0]['acknowledge_url']);
+        $this->assertCount(1, $items);
+        $this->assertNull($items[0]['acknowledge_url']);
     }
 
     /**
@@ -180,9 +180,9 @@ class NotificationDispatcherTest extends TestCase
             'email' => $this->channel(),
         ])->dispatchRaised([$this->failure('feed_file', 'fp-feed', 'No feed file for today.')]);
 
-        self::assertCount(1, $this->delivered['email']);
-        self::assertCount(1, $this->logger->errors);
-        self::assertStringContainsString('slack', $this->logger->errors[0]);
+        $this->assertCount(1, $this->delivered['email']);
+        $this->assertCount(1, $this->logger->errors);
+        $this->assertStringContainsString('slack', $this->logger->errors[0]);
     }
 
     /**
@@ -194,8 +194,8 @@ class NotificationDispatcherTest extends TestCase
         $this->dispatcher(['slack' => $this->channel(delivers: false)])
             ->dispatchRaised([$this->failure('feed_file', 'fp-feed', 'No feed file for today.')]);
 
-        self::assertCount(1, $this->logger->warnings);
-        self::assertStringContainsString('did not deliver', $this->logger->warnings[0]);
+        $this->assertCount(1, $this->logger->warnings);
+        $this->assertStringContainsString('did not deliver', $this->logger->warnings[0]);
     }
 
     /**

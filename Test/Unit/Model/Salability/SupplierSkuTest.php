@@ -20,10 +20,10 @@ class SupplierSkuTest extends TestCase
     {
         $row = new SupplierSku('SKU-1', 'A', 'ACTIVE', 12.0);
 
-        self::assertSame('SKU-1', $row->sku);
-        self::assertSame('A', $row->siteStatus);
-        self::assertSame('ACTIVE', $row->masterStatus);
-        self::assertSame(12.0, $row->quantity);
+        $this->assertSame('SKU-1', $row->sku);
+        $this->assertSame('A', $row->siteStatus);
+        $this->assertSame('ACTIVE', $row->masterStatus);
+        $this->assertSame(12.0, $row->quantity);
     }
 
     /**
@@ -34,7 +34,7 @@ class SupplierSkuTest extends TestCase
     {
         $row = new SupplierSku('SKU-1', 'W', 'ACTIVE', 0.0);
 
-        self::assertNotSame($row->siteStatus, $row->masterStatus);
+        $this->assertNotSame($row->siteStatus, $row->masterStatus);
     }
 
     /**
@@ -43,13 +43,13 @@ class SupplierSkuTest extends TestCase
      */
     public function testTheQuantityIsAFloat(): void
     {
-        self::assertSame(2.5, (new SupplierSku('SKU-1', 'A', 'ACTIVE', 2.5))->quantity);
+        $this->assertSame(2.5, (new SupplierSku('SKU-1', 'A', 'ACTIVE', 2.5))->quantity);
     }
 
     public function testItIsImmutable(): void
     {
         foreach (['sku', 'siteStatus', 'masterStatus', 'quantity'] as $property) {
-            self::assertTrue(
+            $this->assertTrue(
                 (new ReflectionProperty(SupplierSku::class, $property))->isReadOnly(),
                 sprintf('%s must be read-only.', $property)
             );

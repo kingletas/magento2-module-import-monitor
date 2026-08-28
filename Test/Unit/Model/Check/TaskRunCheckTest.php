@@ -50,9 +50,9 @@ class TaskRunCheckTest extends TestCase
     {
         $check = $this->check();
 
-        self::assertInstanceOf(ImportCheckInterface::class, $check);
-        self::assertSame('import_task_run', $check->getCode());
-        self::assertSame('Import task runs', $check->getLabel());
+        $this->assertInstanceOf(ImportCheckInterface::class, $check);
+        $this->assertSame('import_task_run', $check->getCode());
+        $this->assertSame('Import task runs', $check->getLabel());
     }
 
     public function testTheCodeAndLabelAreConfigurable(): void
@@ -67,8 +67,8 @@ class TaskRunCheckTest extends TestCase
             'Acme import runs'
         );
 
-        self::assertSame('acme_task_run', $check->getCode());
-        self::assertSame('Acme import runs', $check->getLabel());
+        $this->assertSame('acme_task_run', $check->getCode());
+        $this->assertSame('Acme import runs', $check->getLabel());
     }
 
     /**
@@ -79,23 +79,23 @@ class TaskRunCheckTest extends TestCase
     {
         $result = $this->check()->run();
 
-        self::assertTrue($result->isHealthy);
-        self::assertSame([], $this->sinceValues);
+        $this->assertTrue($result->isHealthy);
+        $this->assertSame([], $this->sinceValues);
     }
 
     public function testAnImportThatRanAndFinishedIsHealthy(): void
     {
         $this->runs = ['nightly' => new ImportTask('nightly', ImportTask::STATUS_SUCCESS, '2026-08-26 06:00:00')];
 
-        self::assertTrue($this->check([$this->spec()])->run()->isHealthy);
+        $this->assertTrue($this->check([$this->spec()])->run()->isHealthy);
     }
 
     public function testAnImportThatNeverRanIsReported(): void
     {
         $result = $this->check([$this->spec()])->run();
 
-        self::assertFalse($result->isHealthy);
-        self::assertStringContainsString('has not run', (string) $result->message);
+        $this->assertFalse($result->isHealthy);
+        $this->assertStringContainsString('has not run', (string) $result->message);
     }
 
     /**
@@ -105,14 +105,14 @@ class TaskRunCheckTest extends TestCase
     {
         $this->currentHour = 4;
 
-        self::assertTrue($this->check([$this->spec(dueFromHour: 6)])->run()->isHealthy);
+        $this->assertTrue($this->check([$this->spec(dueFromHour: 6)])->run()->isHealthy);
     }
 
     public function testAnImportPastItsDueHourIsReportedAsMissing(): void
     {
         $this->currentHour = 7;
 
-        self::assertFalse($this->check([$this->spec(dueFromHour: 6)])->run()->isHealthy);
+        $this->assertFalse($this->check([$this->spec(dueFromHour: 6)])->run()->isHealthy);
     }
 
     public function testAFailedImportIsReportedWithItsOwnMessage(): void
@@ -127,9 +127,9 @@ class TaskRunCheckTest extends TestCase
 
         $result = $this->check([$this->spec()])->run();
 
-        self::assertFalse($result->isHealthy);
-        self::assertStringContainsString('finished with an error', (string) $result->message);
-        self::assertStringContainsString('Feed host unreachable', (string) $result->message);
+        $this->assertFalse($result->isHealthy);
+        $this->assertStringContainsString('finished with an error', (string) $result->message);
+        $this->assertStringContainsString('Feed host unreachable', (string) $result->message);
     }
 
     public function testAFailedImportWithNoMessageIsStillReported(): void
@@ -138,8 +138,8 @@ class TaskRunCheckTest extends TestCase
 
         $result = $this->check([$this->spec()])->run();
 
-        self::assertFalse($result->isHealthy);
-        self::assertStringEndsWith('error.', (string) $result->message);
+        $this->assertFalse($result->isHealthy);
+        $this->assertStringEndsWith('error.', (string) $result->message);
     }
 
     /**
@@ -152,16 +152,16 @@ class TaskRunCheckTest extends TestCase
 
         $result = $this->check([$this->spec()], stuckThresholdHours: 2)->run();
 
-        self::assertFalse($result->isHealthy);
-        self::assertStringContainsString('has been running since', (string) $result->message);
-        self::assertStringContainsString('2 hour threshold', (string) $result->message);
+        $this->assertFalse($result->isHealthy);
+        $this->assertStringContainsString('has been running since', (string) $result->message);
+        $this->assertStringContainsString('2 hour threshold', (string) $result->message);
     }
 
     public function testAnImportRunningWithinItsThresholdIsHealthy(): void
     {
         $this->runs = ['nightly' => new ImportTask('nightly', ImportTask::STATUS_RUNNING, '2026-08-26 11:30:00')];
 
-        self::assertTrue($this->check([$this->spec()], stuckThresholdHours: 2)->run()->isHealthy);
+        $this->assertTrue($this->check([$this->spec()], stuckThresholdHours: 2)->run()->isHealthy);
     }
 
     public function testEveryFaultyImportIsNamedInOneResult(): void
@@ -173,8 +173,8 @@ class TaskRunCheckTest extends TestCase
             new ImportSpec('other', 'Hourly stock feed'),
         ])->run();
 
-        self::assertStringContainsString('Nightly catalogue import', (string) $result->message);
-        self::assertStringContainsString('Hourly stock feed', (string) $result->message);
+        $this->assertStringContainsString('Nightly catalogue import', (string) $result->message);
+        $this->assertStringContainsString('Hourly stock feed', (string) $result->message);
     }
 
     /**
@@ -188,7 +188,7 @@ class TaskRunCheckTest extends TestCase
         $this->runs = ['nightly' => new ImportTask('nightly', ImportTask::STATUS_RUNNING, '2026-08-26 06:00:00')];
         $second = $this->check([$this->spec()])->run();
 
-        self::assertSame($first->fingerprint, $second->fingerprint);
+        $this->assertSame($first->fingerprint, $second->fingerprint);
     }
 
     /**
@@ -203,7 +203,7 @@ class TaskRunCheckTest extends TestCase
         $this->runs = ['nightly' => new ImportTask('nightly', ImportTask::STATUS_ERROR, '2026-08-26 06:00:00')];
         $errored = $this->check([$this->spec()])->run();
 
-        self::assertNotSame($stuck->fingerprint, $errored->fingerprint);
+        $this->assertNotSame($stuck->fingerprint, $errored->fingerprint);
     }
 
     /**
@@ -216,9 +216,9 @@ class TaskRunCheckTest extends TestCase
 
         $result = $this->check([$this->spec(), new ImportSpec('other', 'Hourly stock feed')])->run();
 
-        self::assertFalse($result->isHealthy);
-        self::assertStringContainsString('could not read import history', (string) $result->message);
-        self::assertStringNotContainsString('has not run', (string) $result->message);
+        $this->assertFalse($result->isHealthy);
+        $this->assertStringContainsString('could not read import history', (string) $result->message);
+        $this->assertStringNotContainsString('has not run', (string) $result->message);
     }
 
     /**
@@ -229,9 +229,9 @@ class TaskRunCheckTest extends TestCase
     {
         $this->check([$this->spec()])->run();
 
-        self::assertCount(1, $this->sinceValues);
+        $this->assertCount(1, $this->sinceValues);
         // Exact, now that both ends come from the same clock.
-        self::assertSame(
+        $this->assertSame(
             gmdate('Y-m-d H:i:s', strtotime(self::NOW . ' UTC') - 36 * 3600),
             $this->sinceValues[0]
         );

@@ -47,16 +47,16 @@ class FeedFileCheckTest extends TestCase
     {
         $check = $this->check();
 
-        self::assertInstanceOf(ImportCheckInterface::class, $check);
-        self::assertSame('feed_file', $check->getCode());
-        self::assertSame('Supplier feed file', $check->getLabel());
+        $this->assertInstanceOf(ImportCheckInterface::class, $check);
+        $this->assertSame('feed_file', $check->getCode());
+        $this->assertSame('Supplier feed file', $check->getLabel());
     }
 
     public function testTodaysFileWithContentIsHealthy(): void
     {
         $this->files = ['import/feed_' . self::TODAY . '_01.csv' => 4096];
 
-        self::assertTrue($this->check()->run()->isHealthy);
+        $this->assertTrue($this->check()->run()->isHealthy);
     }
 
     /**
@@ -67,7 +67,7 @@ class FeedFileCheckTest extends TestCase
         $this->currentHour = 9;
         $this->files = ['import/feed_' . self::YESTERDAY . '_01.csv' => 4096];
 
-        self::assertTrue($this->check()->run()->isHealthy);
+        $this->assertTrue($this->check()->run()->isHealthy);
     }
 
     public function testTodaysFileIsRequiredFromTheStrictHourOn(): void
@@ -77,8 +77,8 @@ class FeedFileCheckTest extends TestCase
 
         $result = $this->check()->run();
 
-        self::assertFalse($result->isHealthy);
-        self::assertStringContainsString("today's file has not arrived", (string) $result->message);
+        $this->assertFalse($result->isHealthy);
+        $this->assertStringContainsString("today's file has not arrived", (string) $result->message);
     }
 
     /**
@@ -91,8 +91,8 @@ class FeedFileCheckTest extends TestCase
 
         $result = $this->check()->run();
 
-        self::assertFalse($result->isHealthy);
-        self::assertStringContainsString('no file found for today or yesterday', (string) $result->message);
+        $this->assertFalse($result->isHealthy);
+        $this->assertStringContainsString('no file found for today or yesterday', (string) $result->message);
     }
 
     /**
@@ -106,7 +106,7 @@ class FeedFileCheckTest extends TestCase
             'import/feed_' . self::YESTERDAY . '_01.csv' => 4096,
         ];
 
-        self::assertTrue($this->check()->run()->isHealthy);
+        $this->assertTrue($this->check()->run()->isHealthy);
     }
 
     /**
@@ -123,9 +123,9 @@ class FeedFileCheckTest extends TestCase
 
         $result = $this->check()->run();
 
-        self::assertFalse($result->isHealthy);
-        self::assertStringContainsString("today's file is empty", (string) $result->message);
-        self::assertStringContainsString('feed_' . self::TODAY, (string) $result->message);
+        $this->assertFalse($result->isHealthy);
+        $this->assertStringContainsString("today's file is empty", (string) $result->message);
+        $this->assertStringContainsString('feed_' . self::TODAY, (string) $result->message);
     }
 
     /**
@@ -143,7 +143,7 @@ class FeedFileCheckTest extends TestCase
         $this->files = ['import/feed_' . self::YESTERDAY . '_01.csv' => 4096];
         $missing = $this->check()->run();
 
-        self::assertNotSame($empty->fingerprint, $missing->fingerprint);
+        $this->assertNotSame($empty->fingerprint, $missing->fingerprint);
     }
 
     /**
@@ -158,8 +158,8 @@ class FeedFileCheckTest extends TestCase
 
         $result = $this->check()->run();
 
-        self::assertStringContainsString('only empty (0 byte) files', (string) $result->message);
-        self::assertStringContainsString('feed_' . self::YESTERDAY, (string) $result->message);
+        $this->assertStringContainsString('only empty (0 byte) files', (string) $result->message);
+        $this->assertStringContainsString('feed_' . self::YESTERDAY, (string) $result->message);
     }
 
     /**
@@ -170,7 +170,7 @@ class FeedFileCheckTest extends TestCase
     {
         $result = $this->check()->run();
 
-        self::assertStringContainsString('feed_' . self::TODAY . '_*.csv', (string) $result->message);
+        $this->assertStringContainsString('feed_' . self::TODAY . '_*.csv', (string) $result->message);
     }
 
     /**
@@ -181,7 +181,7 @@ class FeedFileCheckTest extends TestCase
     {
         $result = $this->check(prefix: 'acme_stock_', extension: 'txt')->run();
 
-        self::assertStringContainsString('acme_stock_' . self::TODAY . '_*.txt', (string) $result->message);
+        $this->assertStringContainsString('acme_stock_' . self::TODAY . '_*.txt', (string) $result->message);
     }
 
     /**
@@ -192,14 +192,14 @@ class FeedFileCheckTest extends TestCase
     {
         $this->files = ['archive/feed_' . self::TODAY . '_01.csv' => 4096];
 
-        self::assertTrue($this->check(directories: ['import', 'archive'])->run()->isHealthy);
+        $this->assertTrue($this->check(directories: ['import', 'archive'])->run()->isHealthy);
     }
 
     public function testADirectoryThatDoesNotExistIsSkippedRatherThanFailing(): void
     {
         $this->files = ['import/feed_' . self::TODAY . '_01.csv' => 4096];
 
-        self::assertTrue($this->check(directories: ['import', 'never_created'])->run()->isHealthy);
+        $this->assertTrue($this->check(directories: ['import', 'never_created'])->run()->isHealthy);
     }
 
     /**
@@ -211,8 +211,8 @@ class FeedFileCheckTest extends TestCase
 
         $result = $this->check()->run();
 
-        self::assertFalse($result->isHealthy);
-        self::assertStringContainsString('could not be verified', (string) $result->message);
+        $this->assertFalse($result->isHealthy);
+        $this->assertStringContainsString('could not be verified', (string) $result->message);
     }
 
     /**
@@ -222,7 +222,7 @@ class FeedFileCheckTest extends TestCase
     {
         $this->files = ['import/feed_' . self::TODAY . '_01.csv' => -1];
 
-        self::assertFalse($this->check()->run()->isHealthy);
+        $this->assertFalse($this->check()->run()->isHealthy);
     }
 
     /**

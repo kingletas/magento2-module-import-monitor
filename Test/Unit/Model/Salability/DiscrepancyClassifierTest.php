@@ -38,7 +38,7 @@ class DiscrepancyClassifierTest extends TestCase
             )
         );
 
-        self::assertNull($result);
+        $this->assertNull($result);
     }
 
     public function testAMissingProductIsFlagged(): void
@@ -48,9 +48,9 @@ class DiscrepancyClassifierTest extends TestCase
             new ProductState(exists: false)
         );
 
-        self::assertNotNull($result);
-        self::assertSame(DiscrepancyReason::Missing, $result->reason);
-        self::assertFalse($result->reason->isAutoFixable());
+        $this->assertNotNull($result);
+        $this->assertSame(DiscrepancyReason::Missing, $result->reason);
+        $this->assertFalse($result->reason->isAutoFixable());
     }
 
     public function testADisabledProductIsFlaggedAndIsAutoFixable(): void
@@ -64,9 +64,9 @@ class DiscrepancyClassifierTest extends TestCase
             )
         );
 
-        self::assertNotNull($result);
-        self::assertSame(DiscrepancyReason::Disabled, $result->reason);
-        self::assertTrue($result->reason->isAutoFixable());
+        $this->assertNotNull($result);
+        $this->assertSame(DiscrepancyReason::Disabled, $result->reason);
+        $this->assertTrue($result->reason->isAutoFixable());
     }
 
     public function testASellableProductWithMismatchedStatusCodesIsFlagged(): void
@@ -80,8 +80,8 @@ class DiscrepancyClassifierTest extends TestCase
             )
         );
 
-        self::assertNotNull($result);
-        self::assertSame(DiscrepancyReason::StatusMismatch, $result->reason);
+        $this->assertNotNull($result);
+        $this->assertSame(DiscrepancyReason::StatusMismatch, $result->reason);
     }
 
     /**
@@ -99,7 +99,7 @@ class DiscrepancyClassifierTest extends TestCase
             )
         );
 
-        self::assertNull($result);
+        $this->assertNull($result);
     }
 
     /**
@@ -116,8 +116,8 @@ class DiscrepancyClassifierTest extends TestCase
             50.0
         );
 
-        self::assertTrue($state->permitsSale());
-        self::assertNull($state->salabilityFailure());
+        $this->assertTrue($state->permitsSale());
+        $this->assertNull($state->salabilityFailure());
     }
 
     public function testTheWorstFailureIsReportedFirst(): void
@@ -132,8 +132,8 @@ class DiscrepancyClassifierTest extends TestCase
             )
         );
 
-        self::assertNotNull($result);
-        self::assertSame(DiscrepancyReason::Disabled, $result->reason);
+        $this->assertNotNull($result);
+        $this->assertSame(DiscrepancyReason::Disabled, $result->reason);
     }
 
     /**

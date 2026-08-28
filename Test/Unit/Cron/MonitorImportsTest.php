@@ -33,15 +33,15 @@ class MonitorImportsTest extends TestCase
 
     public function testTheScheduledRunRaisesAlerts(): void
     {
-        $this->monitor->expects(self::once())->method('run')->willReturn([]);
-        $this->monitor->expects(self::never())->method('check');
+        $this->monitor->expects($this->once())->method('run')->willReturn([]);
+        $this->monitor->expects($this->never())->method('check');
 
         $this->cron()->execute();
     }
 
     public function testNothingRunsWhenTheModuleIsDisabled(): void
     {
-        $this->monitor->expects(self::never())->method('run');
+        $this->monitor->expects($this->never())->method('run');
 
         $this->cron(enabled: false)->execute();
     }
@@ -56,8 +56,8 @@ class MonitorImportsTest extends TestCase
 
         $this->cron()->execute();
 
-        self::assertCount(1, $this->logger->errors);
-        self::assertStringContainsString('scheduled run failed', $this->logger->errors[0]);
+        $this->assertCount(1, $this->logger->errors);
+        $this->assertStringContainsString('scheduled run failed', $this->logger->errors[0]);
     }
 
     public function testASuccessfulRunSaysNothing(): void
@@ -66,7 +66,7 @@ class MonitorImportsTest extends TestCase
 
         $this->cron()->execute();
 
-        self::assertSame([], $this->logger->errors);
+        $this->assertSame([], $this->logger->errors);
     }
 
     private function cron(bool $enabled = true): MonitorImports

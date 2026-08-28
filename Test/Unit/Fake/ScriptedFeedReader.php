@@ -14,7 +14,7 @@ use Generator;
 /**
  * Yields a fixed list of supplier SKUs, one at a time.
  */
-final class ScriptedFeedReader implements SupplierFeedReaderInterface
+class ScriptedFeedReader implements SupplierFeedReaderInterface
 {
     /**
      * @param SupplierSku[] $skus

@@ -42,16 +42,16 @@ class AcknowledgeTest extends TestCase
     {
         $controller = $this->controller();
 
-        self::assertInstanceOf(HttpGetActionInterface::class, $controller);
-        self::assertNotInstanceOf(HttpPostActionInterface::class, $controller);
+        $this->assertInstanceOf(HttpGetActionInterface::class, $controller);
+        $this->assertNotInstanceOf(HttpPostActionInterface::class, $controller);
     }
 
     public function testItRendersAPageWithItsOwnTitle(): void
     {
         $page = $this->controller()->execute();
 
-        self::assertInstanceOf(Page::class, $page);
-        self::assertSame('Acknowledge alert', $this->title);
+        $this->assertInstanceOf(Page::class, $page);
+        $this->assertSame('Acknowledge alert', $this->title);
     }
 
     /**
@@ -61,7 +61,7 @@ class AcknowledgeTest extends TestCase
     {
         $this->controller()->execute();
 
-        self::assertSame([], $this->paramsRead);
+        $this->assertSame([], $this->paramsRead);
     }
 
     private function controller(): Acknowledge

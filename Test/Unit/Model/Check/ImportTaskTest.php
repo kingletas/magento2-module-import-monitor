@@ -19,17 +19,17 @@ class ImportTaskTest extends TestCase
 
     public function testAFinishedRunIsFinishedWhicheverWayItEnded(): void
     {
-        self::assertTrue($this->task(ImportTask::STATUS_SUCCESS)->isFinished());
-        self::assertTrue($this->task(ImportTask::STATUS_ERROR)->isFinished());
-        self::assertFalse($this->task(ImportTask::STATUS_RUNNING)->isFinished());
-        self::assertFalse($this->task(ImportTask::STATUS_PENDING)->isFinished());
+        $this->assertTrue($this->task(ImportTask::STATUS_SUCCESS)->isFinished());
+        $this->assertTrue($this->task(ImportTask::STATUS_ERROR)->isFinished());
+        $this->assertFalse($this->task(ImportTask::STATUS_RUNNING)->isFinished());
+        $this->assertFalse($this->task(ImportTask::STATUS_PENDING)->isFinished());
     }
 
     public function testOnlyAnErroredRunHasFailed(): void
     {
-        self::assertTrue($this->task(ImportTask::STATUS_ERROR)->hasFailed());
-        self::assertFalse($this->task(ImportTask::STATUS_SUCCESS)->hasFailed());
-        self::assertFalse($this->task(ImportTask::STATUS_RUNNING)->hasFailed());
+        $this->assertTrue($this->task(ImportTask::STATUS_ERROR)->hasFailed());
+        $this->assertFalse($this->task(ImportTask::STATUS_SUCCESS)->hasFailed());
+        $this->assertFalse($this->task(ImportTask::STATUS_RUNNING)->hasFailed());
     }
 
     /**
@@ -40,8 +40,8 @@ class ImportTaskTest extends TestCase
     {
         $task = $this->task(ImportTask::STATUS_RUNNING, startedAt: '2026-08-26 06:00:00');
 
-        self::assertTrue($task->isStuck(4, self::NOW));
-        self::assertFalse($task->isStuck(8, self::NOW));
+        $this->assertTrue($task->isStuck(4, self::NOW));
+        $this->assertFalse($task->isStuck(8, self::NOW));
     }
 
     /**
@@ -52,7 +52,7 @@ class ImportTaskTest extends TestCase
     {
         $task = $this->task(ImportTask::STATUS_RUNNING, startedAt: '2026-08-26 08:00:00');
 
-        self::assertFalse($task->isStuck(4, self::NOW));
+        $this->assertFalse($task->isStuck(4, self::NOW));
     }
 
     /**
@@ -62,7 +62,7 @@ class ImportTaskTest extends TestCase
     {
         $task = $this->task(ImportTask::STATUS_SUCCESS, startedAt: '2026-08-20 06:00:00');
 
-        self::assertFalse($task->isStuck(1, self::NOW));
+        $this->assertFalse($task->isStuck(1, self::NOW));
     }
 
     /**
@@ -71,7 +71,7 @@ class ImportTaskTest extends TestCase
      */
     public function testARunThatHasNotStartedIsNotStuck(): void
     {
-        self::assertFalse($this->task(ImportTask::STATUS_PENDING)->isStuck(1, self::NOW));
+        $this->assertFalse($this->task(ImportTask::STATUS_PENDING)->isStuck(1, self::NOW));
     }
 
     /**
@@ -82,8 +82,8 @@ class ImportTaskTest extends TestCase
     {
         $task = $this->task(ImportTask::STATUS_RUNNING, startedAt: 'not a timestamp');
 
-        self::assertFalse($task->isStuck(1, self::NOW));
-        self::assertFalse($this->task(ImportTask::STATUS_RUNNING, startedAt: '2026-08-26 06:00:00')
+        $this->assertFalse($task->isStuck(1, self::NOW));
+        $this->assertFalse($this->task(ImportTask::STATUS_RUNNING, startedAt: '2026-08-26 06:00:00')
             ->isStuck(1, 'not a timestamp'));
     }
 
@@ -97,10 +97,10 @@ class ImportTaskTest extends TestCase
             'Feed unreachable'
         );
 
-        self::assertSame('supplier_inventory', $task->taskCode);
-        self::assertSame('2026-08-26 06:00:00', $task->startedAt);
-        self::assertSame('2026-08-26 06:05:00', $task->finishedAt);
-        self::assertSame('Feed unreachable', $task->message);
+        $this->assertSame('supplier_inventory', $task->taskCode);
+        $this->assertSame('2026-08-26 06:00:00', $task->startedAt);
+        $this->assertSame('2026-08-26 06:05:00', $task->finishedAt);
+        $this->assertSame('Feed unreachable', $task->message);
     }
 
     /**
@@ -111,9 +111,9 @@ class ImportTaskTest extends TestCase
     {
         $task = new ImportTask('supplier_inventory', ImportTask::STATUS_SUCCESS);
 
-        self::assertNull($task->startedAt);
-        self::assertNull($task->finishedAt);
-        self::assertNull($task->message);
+        $this->assertNull($task->startedAt);
+        $this->assertNull($task->finishedAt);
+        $this->assertNull($task->message);
     }
 
     private function task(string $status, ?string $startedAt = null): ImportTask

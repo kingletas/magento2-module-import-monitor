@@ -21,7 +21,7 @@ class DiscrepancyReasonTest extends TestCase
      */
     public function testTheStoredValuesAreStable(): void
     {
-        self::assertSame(
+        $this->assertSame(
             ['MISSING', 'NOT_SIMPLE', 'DISABLED', 'OUT_OF_STOCK', 'STATUS_MISMATCH'],
             array_column(DiscrepancyReason::cases(), 'value')
         );
@@ -33,15 +33,15 @@ class DiscrepancyReasonTest extends TestCase
      */
     public function testTheCasesAreOrderedWorstFirst(): void
     {
-        self::assertSame(DiscrepancyReason::Missing, DiscrepancyReason::cases()[0]);
-        self::assertSame(DiscrepancyReason::StatusMismatch, array_slice(DiscrepancyReason::cases(), -1)[0]);
+        $this->assertSame(DiscrepancyReason::Missing, DiscrepancyReason::cases()[0]);
+        $this->assertSame(DiscrepancyReason::StatusMismatch, array_slice(DiscrepancyReason::cases(), -1)[0]);
     }
 
     public function testEveryReasonHasALabelAnOperatorCanRead(): void
     {
         foreach (DiscrepancyReason::cases() as $reason) {
-            self::assertNotSame('', $reason->label());
-            self::assertNotSame($reason->value, $reason->label());
+            $this->assertNotSame('', $reason->label());
+            $this->assertNotSame($reason->value, $reason->label());
         }
     }
 
@@ -51,8 +51,8 @@ class DiscrepancyReasonTest extends TestCase
      */
     public function testACatalogueChangeIsNeverAutoFixed(): void
     {
-        self::assertFalse(DiscrepancyReason::Missing->isAutoFixable());
-        self::assertFalse(DiscrepancyReason::NotSimple->isAutoFixable());
+        $this->assertFalse(DiscrepancyReason::Missing->isAutoFixable());
+        $this->assertFalse(DiscrepancyReason::NotSimple->isAutoFixable());
     }
 
     /**
@@ -61,9 +61,9 @@ class DiscrepancyReasonTest extends TestCase
      */
     public function testTheRepairableFaultsAreAutoFixable(): void
     {
-        self::assertTrue(DiscrepancyReason::Disabled->isAutoFixable());
-        self::assertTrue(DiscrepancyReason::OutOfStock->isAutoFixable());
-        self::assertTrue(DiscrepancyReason::StatusMismatch->isAutoFixable());
+        $this->assertTrue(DiscrepancyReason::Disabled->isAutoFixable());
+        $this->assertTrue(DiscrepancyReason::OutOfStock->isAutoFixable());
+        $this->assertTrue(DiscrepancyReason::StatusMismatch->isAutoFixable());
     }
 
     /**
@@ -73,14 +73,14 @@ class DiscrepancyReasonTest extends TestCase
     public function testEveryCaseAnswersBothQuestions(): void
     {
         foreach (DiscrepancyReason::cases() as $reason) {
-            self::assertIsBool($reason->isAutoFixable());
-            self::assertIsString($reason->label());
+            $this->assertIsBool($reason->isAutoFixable());
+            $this->assertIsString($reason->label());
         }
     }
 
     public function testAStoredValueMapsBackToItsCase(): void
     {
-        self::assertSame(DiscrepancyReason::OutOfStock, DiscrepancyReason::from('OUT_OF_STOCK'));
-        self::assertNull(DiscrepancyReason::tryFrom('SOMETHING_ELSE'));
+        $this->assertSame(DiscrepancyReason::OutOfStock, DiscrepancyReason::from('OUT_OF_STOCK'));
+        $this->assertNull(DiscrepancyReason::tryFrom('SOMETHING_ELSE'));
     }
 }

@@ -58,16 +58,16 @@ class ConfirmTest extends TestCase
     {
         $controller = $this->controller();
 
-        self::assertInstanceOf(HttpPostActionInterface::class, $controller);
-        self::assertNotInstanceOf(HttpGetActionInterface::class, $controller);
+        $this->assertInstanceOf(HttpPostActionInterface::class, $controller);
+        $this->assertNotInstanceOf(HttpGetActionInterface::class, $controller);
     }
 
     public function testAValidAcknowledgementIsRecordedAndConfirmed(): void
     {
         $this->controller()->execute();
 
-        self::assertSame([['id' => 9, 'token' => 'signature-for-9']], $this->acknowledgements);
-        self::assertSame('success', $this->messages[0]['level']);
+        $this->assertSame([['id' => 9, 'token' => 'signature-for-9']], $this->acknowledgements);
+        $this->assertSame('success', $this->messages[0]['level']);
     }
 
     /**
@@ -79,7 +79,7 @@ class ConfirmTest extends TestCase
 
         $this->controller()->execute();
 
-        self::assertSame('error', $this->messages[0]['level']);
+        $this->assertSame('error', $this->messages[0]['level']);
     }
 
     /**
@@ -97,7 +97,7 @@ class ConfirmTest extends TestCase
         $this->params['id'] = '99999';
         $this->controller()->execute();
 
-        self::assertSame($badSignature, $this->messages[0]['message']);
+        $this->assertSame($badSignature, $this->messages[0]['message']);
     }
 
     public function testARejectedFormKeyAcknowledgesNothing(): void
@@ -106,9 +106,9 @@ class ConfirmTest extends TestCase
 
         $this->controller()->execute();
 
-        self::assertSame([], $this->acknowledgements);
-        self::assertSame('error', $this->messages[0]['level']);
-        self::assertStringContainsString('session has expired', $this->messages[0]['message']);
+        $this->assertSame([], $this->acknowledgements);
+        $this->assertSame('error', $this->messages[0]['level']);
+        $this->assertStringContainsString('session has expired', $this->messages[0]['message']);
     }
 
     /**
@@ -129,7 +129,7 @@ class ConfirmTest extends TestCase
         $this->controller()->execute();
         $paths[] = $this->redirects[2]['path'];
 
-        self::assertSame(
+        $this->assertSame(
             [
                 'importmonitor/alerts/acknowledge',
                 'importmonitor/alerts/acknowledge',
@@ -149,9 +149,9 @@ class ConfirmTest extends TestCase
 
         $this->controller()->execute();
 
-        self::assertSame(9, $this->redirects[0]['params']['id']);
-        self::assertSame('signature-for-9', $this->redirects[0]['params']['token']);
-        self::assertTrue($this->redirects[0]['params']['_secure']);
+        $this->assertSame(9, $this->redirects[0]['params']['id']);
+        $this->assertSame('signature-for-9', $this->redirects[0]['params']['token']);
+        $this->assertTrue($this->redirects[0]['params']['_secure']);
     }
 
     /**
@@ -164,7 +164,7 @@ class ConfirmTest extends TestCase
 
         $this->controller()->execute();
 
-        self::assertSame(9, $this->acknowledgements[0]['id']);
+        $this->assertSame(9, $this->acknowledgements[0]['id']);
     }
 
     private function controller(): Confirm

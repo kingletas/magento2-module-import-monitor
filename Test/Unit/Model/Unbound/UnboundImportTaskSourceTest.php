@@ -16,11 +16,11 @@ use PHPUnit\Framework\TestCase;
 /**
  * The placeholder that keeps the module constructable without an import source.
  */
-final class UnboundImportTaskSourceTest extends TestCase
+class UnboundImportTaskSourceTest extends TestCase
 {
     public function testItSatisfiesTheInterfaceItStandsInFor(): void
     {
-        self::assertInstanceOf(
+        $this->assertInstanceOf(
             ImportTaskSourceInterface::class,
             new UnboundImportTaskSource(new RecordingLogger())
         );
@@ -39,7 +39,7 @@ final class UnboundImportTaskSourceTest extends TestCase
      */
     public function testTheMessageNamesTheInterfaceToBind(): void
     {
-        self::assertStringContainsString(
+        $this->assertStringContainsString(
             ImportTaskSourceInterface::class,
             UnboundImportTaskSource::MESSAGE
         );
@@ -58,6 +58,6 @@ final class UnboundImportTaskSourceTest extends TestCase
             }
         }
 
-        self::assertCount(1, $logger->warnings);
+        $this->assertCount(1, $logger->warnings);
     }
 }

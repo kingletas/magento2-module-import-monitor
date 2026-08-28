@@ -66,8 +66,8 @@ class EmailChannelTest extends TestCase
     {
         $channel = $this->channel();
 
-        self::assertInstanceOf(AlertChannelInterface::class, $channel);
-        self::assertSame('email', $channel->getCode());
+        $this->assertInstanceOf(AlertChannelInterface::class, $channel);
+        $this->assertSame('email', $channel->getCode());
     }
 
     /**
@@ -76,14 +76,14 @@ class EmailChannelTest extends TestCase
      */
     public function testTheChannelIsOffUntilRecipientsAreConfigured(): void
     {
-        self::assertFalse($this->channel(recipients: '')->isEnabled());
-        self::assertTrue($this->channel()->isEnabled());
+        $this->assertFalse($this->channel(recipients: '')->isEnabled());
+        $this->assertTrue($this->channel()->isEnabled());
     }
 
     public function testAnUnconfiguredChannelRefusesToSend(): void
     {
-        self::assertFalse($this->channel(recipients: '')->send($this->message()));
-        self::assertSame(0, $this->sent);
+        $this->assertFalse($this->channel(recipients: '')->send($this->message()));
+        $this->assertSame(0, $this->sent);
     }
 
     /**
@@ -91,18 +91,18 @@ class EmailChannelTest extends TestCase
      */
     public function testEveryRecipientGoesOnOneMessage(): void
     {
-        self::assertTrue($this->channel(recipients: 'a@example.test,b@example.test')->send($this->message()));
+        $this->assertTrue($this->channel(recipients: 'a@example.test,b@example.test')->send($this->message()));
 
-        self::assertSame(1, $this->sent);
-        self::assertSame([['a@example.test', 'b@example.test']], $this->addressed);
+        $this->assertSame(1, $this->sent);
+        $this->assertSame([['a@example.test', 'b@example.test']], $this->addressed);
     }
 
     public function testTheConfiguredTemplateAndSenderAreUsed(): void
     {
         $this->channel()->send($this->message());
 
-        self::assertSame('commerce_import_monitor_alert', $this->templateId);
-        self::assertSame('general', $this->senderScope);
+        $this->assertSame('commerce_import_monitor_alert', $this->templateId);
+        $this->assertSame('general', $this->senderScope);
     }
 
     /**
@@ -113,7 +113,7 @@ class EmailChannelTest extends TestCase
     {
         $this->channel()->send($this->message());
 
-        self::assertSame(
+        $this->assertSame(
             ['area' => 'adminhtml', 'store' => Store::DEFAULT_STORE_ID],
             $this->templateOptions
         );
@@ -127,10 +127,10 @@ class EmailChannelTest extends TestCase
     {
         $this->channel()->send($this->message());
 
-        self::assertStringContainsString('<ul>', $this->templateVars['body_html']);
-        self::assertStringContainsString('No feed file for today.', $this->templateVars['body_text']);
-        self::assertSame(1, $this->templateVars['count']);
-        self::assertSame('2026-08-26 06:00:00', $this->templateVars['occurred_at']);
+        $this->assertStringContainsString('<ul>', $this->templateVars['body_html']);
+        $this->assertStringContainsString('No feed file for today.', $this->templateVars['body_text']);
+        $this->assertSame(1, $this->templateVars['count']);
+        $this->assertSame('2026-08-26 06:00:00', $this->templateVars['occurred_at']);
     }
 
     /**
@@ -141,15 +141,15 @@ class EmailChannelTest extends TestCase
     {
         $this->sendFailure = new RuntimeException('SMTP connection refused');
 
-        self::assertFalse($this->channel()->send($this->message()));
-        self::assertCount(1, $this->logger->errors);
+        $this->assertFalse($this->channel()->send($this->message()));
+        $this->assertCount(1, $this->logger->errors);
     }
 
     public function testInlineTranslationIsSuspendedForTheRender(): void
     {
         $this->channel()->send($this->message());
 
-        self::assertSame(['suspend', 'resume'], $this->translationCalls);
+        $this->assertSame(['suspend', 'resume'], $this->translationCalls);
     }
 
     /**
@@ -159,8 +159,8 @@ class EmailChannelTest extends TestCase
     {
         $this->sendFailure = new TypeError('Template variable is not a string');
 
-        self::assertFalse($this->channel()->send($this->message()));
-        self::assertSame(['suspend', 'resume'], $this->translationCalls);
+        $this->assertFalse($this->channel()->send($this->message()));
+        $this->assertSame(['suspend', 'resume'], $this->translationCalls);
     }
 
     private function message(): AlertMessage

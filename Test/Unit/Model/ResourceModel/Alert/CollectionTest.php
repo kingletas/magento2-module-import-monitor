@@ -28,8 +28,8 @@ class CollectionTest extends TestCase
     {
         $collection = $this->collection();
 
-        self::assertSame(Alert::class, $collection->getModelName());
-        self::assertSame(AlertResource::class, $collection->getResourceModelName());
+        $this->assertSame(Alert::class, $collection->getModelName());
+        $this->assertSame(AlertResource::class, $collection->getResourceModelName());
     }
 
     /**
@@ -37,7 +37,7 @@ class CollectionTest extends TestCase
      */
     public function testTheIdFieldIsSetThroughTheSetter(): void
     {
-        self::assertSame(AlertInterface::ALERT_ID, $this->collection()->getIdFieldName());
+        $this->assertSame(AlertInterface::ALERT_ID, $this->collection()->getIdFieldName());
     }
 
     /**
@@ -46,7 +46,7 @@ class CollectionTest extends TestCase
      */
     public function testTheIdFieldIsNotTheFrameworkDefault(): void
     {
-        self::assertNotSame('id', $this->collection()->getIdFieldName());
+        $this->assertNotSame('id', $this->collection()->getIdFieldName());
     }
 
     private function collection(): Collection

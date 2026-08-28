@@ -37,7 +37,7 @@ class AlertSignerTest extends TestCase
 
     public function testASignatureVerifiesForItsOwnAlert(): void
     {
-        self::assertTrue($this->signer->verify(42, $this->signer->sign(42)));
+        $this->assertTrue($this->signer->verify(42, $this->signer->sign(42)));
     }
 
     /**
@@ -49,20 +49,20 @@ class AlertSignerTest extends TestCase
         $token = $this->signer->sign(42);
 
         foreach ([1, 41, 43, 999] as $otherId) {
-            self::assertFalse($this->signer->verify($otherId, $token), "id $otherId accepted alert 42's token");
+            $this->assertFalse($this->signer->verify($otherId, $token), "id $otherId accepted alert 42's token");
         }
     }
 
     public function testAnEmptyOrGarbageTokenIsRejected(): void
     {
-        self::assertFalse($this->signer->verify(42, ''));
-        self::assertFalse($this->signer->verify(42, 'not-a-signature'));
-        self::assertFalse($this->signer->verify(42, str_repeat('0', 32)));
+        $this->assertFalse($this->signer->verify(42, ''));
+        $this->assertFalse($this->signer->verify(42, 'not-a-signature'));
+        $this->assertFalse($this->signer->verify(42, str_repeat('0', 32)));
     }
 
     public function testSignaturesAreStableForTheSameKeyAndId(): void
     {
-        self::assertSame($this->signer->sign(42), $this->signer->sign(42));
+        $this->assertSame($this->signer->sign(42), $this->signer->sign(42));
     }
 
     public function testADifferentCryptKeyProducesADifferentSignature(): void
@@ -70,13 +70,13 @@ class AlertSignerTest extends TestCase
         $other = $this->createMock(DeploymentConfig::class);
         $other->method('get')->willReturn('a-different-crypt-key');
 
-        self::assertNotSame($this->signer->sign(42), (new AlertSigner($other))->sign(42));
+        $this->assertNotSame($this->signer->sign(42), (new AlertSigner($other))->sign(42));
     }
 
     public function testTheSignatureIsLongEnoughToResistGuessing(): void
     {
         // 32 hex characters is 128 bits.
-        self::assertSame(32, strlen($this->signer->sign(42)));
-        self::assertMatchesRegularExpression('/^[a-f0-9]{32}$/', $this->signer->sign(42));
+        $this->assertSame(32, strlen($this->signer->sign(42)));
+        $this->assertMatchesRegularExpression('/^[a-f0-9]{32}$/', $this->signer->sign(42));
     }
 }

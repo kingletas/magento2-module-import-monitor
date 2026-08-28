@@ -43,16 +43,16 @@ class CheckImportsCommandTest extends TestCase
      */
     public function testItDoesNotAlertByDefault(): void
     {
-        $this->monitor->expects(self::once())->method('check')->willReturn($this->results);
-        $this->monitor->expects(self::never())->method('run');
+        $this->monitor->expects($this->once())->method('check')->willReturn($this->results);
+        $this->monitor->expects($this->never())->method('run');
 
         $this->tester()->execute([]);
     }
 
     public function testAlertingIsOptIn(): void
     {
-        $this->monitor->expects(self::once())->method('run')->willReturn($this->results);
-        $this->monitor->expects(self::never())->method('check');
+        $this->monitor->expects($this->once())->method('run')->willReturn($this->results);
+        $this->monitor->expects($this->never())->method('check');
 
         $this->tester()->execute(['--alert' => true]);
     }
@@ -62,9 +62,9 @@ class CheckImportsCommandTest extends TestCase
         $tester = $this->tester();
         $tester->execute([]);
 
-        self::assertStringContainsString('feed_file', $tester->getDisplay());
-        self::assertStringContainsString('import_task_run', $tester->getDisplay());
-        self::assertStringContainsString('Nightly import is stuck.', $tester->getDisplay());
+        $this->assertStringContainsString('feed_file', $tester->getDisplay());
+        $this->assertStringContainsString('import_task_run', $tester->getDisplay());
+        $this->assertStringContainsString('Nightly import is stuck.', $tester->getDisplay());
     }
 
     public function testTheTotalsAreReported(): void
@@ -72,7 +72,7 @@ class CheckImportsCommandTest extends TestCase
         $tester = $this->tester();
         $tester->execute([]);
 
-        self::assertStringContainsString('2 check(s) run, 1 failing.', $tester->getDisplay());
+        $this->assertStringContainsString('2 check(s) run, 1 failing.', $tester->getDisplay());
     }
 
     /**
@@ -81,14 +81,14 @@ class CheckImportsCommandTest extends TestCase
      */
     public function testAFailingCheckExitsNonZero(): void
     {
-        self::assertSame(Command::FAILURE, $this->tester()->execute([]));
+        $this->assertSame(Command::FAILURE, $this->tester()->execute([]));
     }
 
     public function testAHealthyRunExitsZero(): void
     {
         $this->results = [new CheckResult(true, 'feed_file')];
 
-        self::assertSame(Command::SUCCESS, $this->tester()->execute([]));
+        $this->assertSame(Command::SUCCESS, $this->tester()->execute([]));
     }
 
     /**
@@ -101,8 +101,8 @@ class CheckImportsCommandTest extends TestCase
 
         $tester = $this->tester();
 
-        self::assertSame(Command::SUCCESS, $tester->execute([]));
-        self::assertStringContainsString('No checks are registered', $tester->getDisplay());
+        $this->assertSame(Command::SUCCESS, $tester->execute([]));
+        $this->assertStringContainsString('No checks are registered', $tester->getDisplay());
     }
 
     /**
@@ -116,9 +116,9 @@ class CheckImportsCommandTest extends TestCase
 
         $tester = $this->tester();
 
-        self::assertSame(Command::FAILURE, $tester->execute([]));
-        self::assertStringContainsString('could not run', $tester->getDisplay());
-        self::assertStringContainsString('no task source is bound', $tester->getDisplay());
+        $this->assertSame(Command::FAILURE, $tester->execute([]));
+        $this->assertStringContainsString('could not run', $tester->getDisplay());
+        $this->assertStringContainsString('no task source is bound', $tester->getDisplay());
     }
 
     private function command(): CheckImportsCommand

@@ -20,8 +20,8 @@ class ProductStateTest extends TestCase
     {
         $state = $this->state();
 
-        self::assertNull($state->salabilityFailure());
-        self::assertTrue($state->permitsSale());
+        $this->assertNull($state->salabilityFailure());
+        $this->assertTrue($state->permitsSale());
     }
 
     /**
@@ -32,25 +32,25 @@ class ProductStateTest extends TestCase
     {
         $state = new ProductState(false);
 
-        self::assertSame(DiscrepancyReason::Missing, $state->salabilityFailure());
-        self::assertFalse($state->permitsSale());
+        $this->assertSame(DiscrepancyReason::Missing, $state->salabilityFailure());
+        $this->assertFalse($state->permitsSale());
     }
 
     public function testAPresentButUnsellableProductIsNotReportedAsMissing(): void
     {
         $state = $this->state(isEnabled: false);
 
-        self::assertSame(DiscrepancyReason::Disabled, $state->salabilityFailure());
+        $this->assertSame(DiscrepancyReason::Disabled, $state->salabilityFailure());
     }
 
     public function testANonSimpleProductIsReportedAsSuch(): void
     {
-        self::assertSame(DiscrepancyReason::NotSimple, $this->state(isSimple: false)->salabilityFailure());
+        $this->assertSame(DiscrepancyReason::NotSimple, $this->state(isSimple: false)->salabilityFailure());
     }
 
     public function testAProductWithNoSellableStockIsOutOfStock(): void
     {
-        self::assertSame(DiscrepancyReason::OutOfStock, $this->state(isSalable: false)->salabilityFailure());
+        $this->assertSame(DiscrepancyReason::OutOfStock, $this->state(isSalable: false)->salabilityFailure());
     }
 
     /**
@@ -61,12 +61,12 @@ class ProductStateTest extends TestCase
     {
         $everythingWrong = new ProductState(false, false, false, false);
 
-        self::assertSame(DiscrepancyReason::Missing, $everythingWrong->salabilityFailure());
-        self::assertSame(
+        $this->assertSame(DiscrepancyReason::Missing, $everythingWrong->salabilityFailure());
+        $this->assertSame(
             DiscrepancyReason::NotSimple,
             (new ProductState(true, false, false, false))->salabilityFailure()
         );
-        self::assertSame(
+        $this->assertSame(
             DiscrepancyReason::Disabled,
             (new ProductState(true, true, false, false))->salabilityFailure()
         );
@@ -80,8 +80,8 @@ class ProductStateTest extends TestCase
     {
         $state = $this->state(siteStatus: 'W', masterStatus: 'WITHDRAWN');
 
-        self::assertNull($state->salabilityFailure());
-        self::assertTrue($state->permitsSale());
+        $this->assertNull($state->salabilityFailure());
+        $this->assertTrue($state->permitsSale());
     }
 
     /**
@@ -91,9 +91,9 @@ class ProductStateTest extends TestCase
     {
         $state = new ProductState(true);
 
-        self::assertFalse($state->permitsSale());
-        self::assertSame('', $state->siteStatus);
-        self::assertSame(0.0, $state->quantity);
+        $this->assertFalse($state->permitsSale());
+        $this->assertSame('', $state->siteStatus);
+        $this->assertSame(0.0, $state->quantity);
     }
 
     private function state(

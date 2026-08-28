@@ -16,7 +16,7 @@ use Commerce\ImportMonitor\Test\Performance\AlertingCostTest;
 /**
  * The alert table, counting every statement it is asked for.
  */
-final class CountingAlerts extends InMemoryAlerts
+class CountingAlerts extends InMemoryAlerts
 {
     public function __construct(private readonly AlertingCostTest $test)
     {

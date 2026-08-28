@@ -23,14 +23,14 @@ class DiscrepancyDescriberTest extends TestCase
         foreach (DiscrepancyReason::cases() as $reason) {
             $message = $this->describe($reason);
 
-            self::assertStringContainsString('SKU-1', $message);
-            self::assertStringEndsWith('.', $message);
+            $this->assertStringContainsString('SKU-1', $message);
+            $this->assertStringEndsWith('.', $message);
         }
     }
 
     public function testAMissingProductIsDescribedAsAbsentRatherThanUnsellable(): void
     {
-        self::assertStringContainsString(
+        $this->assertStringContainsString(
             'does not exist in Magento',
             $this->describe(DiscrepancyReason::Missing)
         );
@@ -38,7 +38,7 @@ class DiscrepancyDescriberTest extends TestCase
 
     public function testADisabledProductIsDescribedAsDisabled(): void
     {
-        self::assertStringContainsString('disabled in Magento', $this->describe(DiscrepancyReason::Disabled));
+        $this->assertStringContainsString('disabled in Magento', $this->describe(DiscrepancyReason::Disabled));
     }
 
     /**
@@ -49,8 +49,8 @@ class DiscrepancyDescriberTest extends TestCase
     {
         $message = $this->describe(DiscrepancyReason::OutOfStock, supplierQuantity: 12.0, magentoQuantity: 0.0);
 
-        self::assertStringContainsString('12 available', $message);
-        self::assertStringContainsString('0 sellable', $message);
+        $this->assertStringContainsString('12 available', $message);
+        $this->assertStringContainsString('0 sellable', $message);
     }
 
     /**
@@ -60,8 +60,8 @@ class DiscrepancyDescriberTest extends TestCase
     {
         $message = $this->describe(DiscrepancyReason::Missing, supplierQuantity: 12.0);
 
-        self::assertStringContainsString('12 available', $message);
-        self::assertStringNotContainsString('12.00', $message);
+        $this->assertStringContainsString('12 available', $message);
+        $this->assertStringNotContainsString('12.00', $message);
     }
 
     /**
@@ -70,7 +70,7 @@ class DiscrepancyDescriberTest extends TestCase
      */
     public function testAFractionalQuantityKeepsItsDecimals(): void
     {
-        self::assertStringContainsString(
+        $this->assertStringContainsString(
             '2.5 available',
             $this->describe(DiscrepancyReason::Missing, supplierQuantity: 2.5)
         );
@@ -80,8 +80,8 @@ class DiscrepancyDescriberTest extends TestCase
     {
         $message = $this->describe(DiscrepancyReason::OutOfStock, supplierQuantity: 0.0, magentoQuantity: 0.0);
 
-        self::assertStringContainsString('0 available', $message);
-        self::assertStringNotContainsString('available.', str_replace('0 available', '', $message));
+        $this->assertStringContainsString('0 available', $message);
+        $this->assertStringNotContainsString('available.', str_replace('0 available', '', $message));
     }
 
     public function testTheStatusMismatchMessageQuotesAllFourCodes(): void
@@ -95,7 +95,7 @@ class DiscrepancyDescriberTest extends TestCase
         );
 
         foreach (['A/ACTIVE', 'W/WITHDRAWN'] as $pair) {
-            self::assertStringContainsString($pair, $message);
+            $this->assertStringContainsString($pair, $message);
         }
     }
 
@@ -113,12 +113,12 @@ class DiscrepancyDescriberTest extends TestCase
             magentoMaster: '   '
         );
 
-        self::assertStringContainsString('(blank)/(blank)', $message);
+        $this->assertStringContainsString('(blank)/(blank)', $message);
     }
 
     public function testANonSimpleProductIsDescribedAsUnreconcilable(): void
     {
-        self::assertStringContainsString(
+        $this->assertStringContainsString(
             'not a simple product',
             $this->describe(DiscrepancyReason::NotSimple)
         );

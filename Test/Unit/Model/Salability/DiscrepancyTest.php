@@ -22,9 +22,9 @@ class DiscrepancyTest extends TestCase
     {
         $discrepancy = $this->discrepancy();
 
-        self::assertSame('SKU-1', $discrepancy->getSku());
-        self::assertSame(DiscrepancyReason::OutOfStock, $discrepancy->reason);
-        self::assertSame('Magento shows none.', $discrepancy->message);
+        $this->assertSame('SKU-1', $discrepancy->getSku());
+        $this->assertSame(DiscrepancyReason::OutOfStock, $discrepancy->reason);
+        $this->assertSame('Magento shows none.', $discrepancy->message);
     }
 
     /**
@@ -35,12 +35,12 @@ class DiscrepancyTest extends TestCase
     {
         $row = $this->discrepancy()->toArray();
 
-        self::assertSame('A', $row['supplier_site_status']);
-        self::assertSame('ACTIVE', $row['supplier_master_status']);
-        self::assertSame(12.0, $row['supplier_quantity']);
-        self::assertSame('A', $row['magento_site_status']);
-        self::assertSame('ACTIVE', $row['magento_master_status']);
-        self::assertSame(0.0, $row['magento_quantity']);
+        $this->assertSame('A', $row['supplier_site_status']);
+        $this->assertSame('ACTIVE', $row['supplier_master_status']);
+        $this->assertSame(12.0, $row['supplier_quantity']);
+        $this->assertSame('A', $row['magento_site_status']);
+        $this->assertSame('ACTIVE', $row['magento_master_status']);
+        $this->assertSame(0.0, $row['magento_quantity']);
     }
 
     /**
@@ -50,8 +50,8 @@ class DiscrepancyTest extends TestCase
     {
         $row = $this->discrepancy()->toArray();
 
-        self::assertSame(DiscrepancyReason::OutOfStock->value, $row['reason']);
-        self::assertSame(DiscrepancyReason::OutOfStock->label(), $row['reason_label']);
+        $this->assertSame(DiscrepancyReason::OutOfStock->value, $row['reason']);
+        $this->assertSame(DiscrepancyReason::OutOfStock->label(), $row['reason_label']);
     }
 
     public function testTheRowIsKeyedTheSameWayForEveryReason(): void
@@ -62,13 +62,13 @@ class DiscrepancyTest extends TestCase
             $row = $this->discrepancy($reason)->toArray();
             $keys ??= array_keys($row);
 
-            self::assertSame($keys, array_keys($row));
+            $this->assertSame($keys, array_keys($row));
         }
     }
 
     public function testTheSkuIsTheSupplierRowsSku(): void
     {
-        self::assertSame('SKU-1', $this->discrepancy()->toArray()['sku']);
+        $this->assertSame('SKU-1', $this->discrepancy()->toArray()['sku']);
     }
 
     /**
@@ -85,8 +85,8 @@ class DiscrepancyTest extends TestCase
 
         $row = $discrepancy->toArray();
 
-        self::assertSame('', $row['magento_site_status']);
-        self::assertSame(0.0, $row['magento_quantity']);
+        $this->assertSame('', $row['magento_site_status']);
+        $this->assertSame(0.0, $row['magento_quantity']);
     }
 
     private function discrepancy(DiscrepancyReason $reason = DiscrepancyReason::OutOfStock): Discrepancy

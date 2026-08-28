@@ -20,10 +20,10 @@ class ImportSpecTest extends TestCase
     {
         $spec = new ImportSpec('supplier_inventory', 'Supplier inventory', 4, 6);
 
-        self::assertSame('supplier_inventory', $spec->taskCode);
-        self::assertSame('Supplier inventory', $spec->label);
-        self::assertSame(4, $spec->expectedRuns);
-        self::assertSame(6, $spec->dueFromHour);
+        $this->assertSame('supplier_inventory', $spec->taskCode);
+        $this->assertSame('Supplier inventory', $spec->label);
+        $this->assertSame(4, $spec->expectedRuns);
+        $this->assertSame(6, $spec->dueFromHour);
     }
 
     /**
@@ -32,7 +32,7 @@ class ImportSpecTest extends TestCase
      */
     public function testAnImportIsExpectedOnceADayByDefault(): void
     {
-        self::assertSame(1, (new ImportSpec('supplier_inventory', 'Supplier inventory'))->expectedRuns);
+        $this->assertSame(1, (new ImportSpec('supplier_inventory', 'Supplier inventory'))->expectedRuns);
     }
 
     /**
@@ -41,7 +41,7 @@ class ImportSpecTest extends TestCase
      */
     public function testAnImportIsDueFromMidnightUnlessAWindowIsDeclared(): void
     {
-        self::assertSame(0, (new ImportSpec('supplier_inventory', 'Supplier inventory'))->dueFromHour);
+        $this->assertSame(0, (new ImportSpec('supplier_inventory', 'Supplier inventory'))->dueFromHour);
     }
 
     /**
@@ -52,13 +52,13 @@ class ImportSpecTest extends TestCase
     {
         $spec = new ImportSpec('supplier_inventory', 'Overnight supplier inventory feed');
 
-        self::assertNotSame($spec->taskCode, $spec->label);
+        $this->assertNotSame($spec->taskCode, $spec->label);
     }
 
     public function testItIsImmutable(): void
     {
         foreach (['taskCode', 'label', 'expectedRuns', 'dueFromHour'] as $property) {
-            self::assertTrue(
+            $this->assertTrue(
                 (new ReflectionProperty(ImportSpec::class, $property))->isReadOnly(),
                 sprintf('%s must be read-only.', $property)
             );

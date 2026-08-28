@@ -26,7 +26,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Every requested SKU comes back with a state.
  */
-final class ProductStateLoaderTest extends TestCase
+class ProductStateLoaderTest extends TestCase
 {
     private ProductStateLoader $loader;
 
@@ -91,7 +91,7 @@ final class ProductStateLoaderTest extends TestCase
 
     public function testNoSkusMeansNoQueryAndNoStates(): void
     {
-        self::assertSame([], $this->loader->load([]));
+        $this->assertSame([], $this->loader->load([]));
     }
 
     /**
@@ -101,8 +101,8 @@ final class ProductStateLoaderTest extends TestCase
     {
         $states = $this->loader->load(['SKU-GONE']);
 
-        self::assertArrayHasKey('SKU-GONE', $states);
-        self::assertFalse($states['SKU-GONE']->exists);
+        $this->assertArrayHasKey('SKU-GONE', $states);
+        $this->assertFalse($states['SKU-GONE']->exists);
     }
 
     public function testAKnownSkuCarriesItsStatusQuantityAndSalability(): void
@@ -115,11 +115,11 @@ final class ProductStateLoaderTest extends TestCase
 
         $state = $this->loader->load(['SKU-1'])['SKU-1'];
 
-        self::assertTrue($state->exists);
-        self::assertTrue($state->isSimple);
-        self::assertTrue($state->isEnabled);
-        self::assertTrue($state->isSalable);
-        self::assertSame(4.0, $state->quantity);
+        $this->assertTrue($state->exists);
+        $this->assertTrue($state->isSimple);
+        $this->assertTrue($state->isEnabled);
+        $this->assertTrue($state->isSalable);
+        $this->assertSame(4.0, $state->quantity);
     }
 
     /**
@@ -134,14 +134,14 @@ final class ProductStateLoaderTest extends TestCase
 
         $state = $this->loader->load(['SKU-1'])['SKU-1'];
 
-        self::assertSame(0.0, $state->quantity);
-        self::assertFalse($state->isSalable);
+        $this->assertSame(0.0, $state->quantity);
+        $this->assertFalse($state->isSalable);
     }
 
     public function testDuplicateAndBlankSkusAreNormalisedAway(): void
     {
         $states = $this->loader->load(['SKU-1', 'SKU-1', '']);
 
-        self::assertSame(['SKU-1'], array_keys($states));
+        $this->assertSame(['SKU-1'], array_keys($states));
     }
 }

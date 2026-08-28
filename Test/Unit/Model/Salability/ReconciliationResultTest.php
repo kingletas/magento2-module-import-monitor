@@ -18,25 +18,25 @@ use PHPUnit\Framework\TestCase;
  * Agreement, an empty feed and a run that could not look all produce an empty
  * list, and differ.
  */
-final class ReconciliationResultTest extends TestCase
+class ReconciliationResultTest extends TestCase
 {
     public function testARunThatComparedEverythingAndFoundNothingIsClean(): void
     {
         $result = new ReconciliationResult(examined: 40, discrepancies: [], countsByReason: [], read: 40, skipped: 0);
 
-        self::assertTrue($result->isClean());
-        self::assertFalse($result->isInconclusive());
-        self::assertStringContainsString('Magento agrees on all of them', $result->summarise());
+        $this->assertTrue($result->isClean());
+        $this->assertFalse($result->isInconclusive());
+        $this->assertStringContainsString('Magento agrees on all of them', $result->summarise());
     }
 
     public function testAnEmptyFeedIsNotAgreement(): void
     {
         $result = new ReconciliationResult(examined: 0, discrepancies: [], countsByReason: [], read: 0, skipped: 0);
 
-        self::assertFalse($result->isClean());
-        self::assertTrue($result->isInconclusive());
-        self::assertStringContainsString('No sellable SKUs were found', $result->summarise());
-        self::assertStringNotContainsString('agrees', $result->summarise());
+        $this->assertFalse($result->isClean());
+        $this->assertTrue($result->isInconclusive());
+        $this->assertStringContainsString('No sellable SKUs were found', $result->summarise());
+        $this->assertStringNotContainsString('agrees', $result->summarise());
     }
 
     /**
@@ -46,10 +46,10 @@ final class ReconciliationResultTest extends TestCase
     {
         $result = new ReconciliationResult(examined: 0, discrepancies: [], countsByReason: [], read: 500, skipped: 500);
 
-        self::assertFalse($result->isClean());
-        self::assertTrue($result->isInconclusive());
-        self::assertStringContainsString('None of the 500', $result->summarise());
-        self::assertStringNotContainsString('agrees', $result->summarise());
+        $this->assertFalse($result->isClean());
+        $this->assertTrue($result->isInconclusive());
+        $this->assertStringContainsString('None of the 500', $result->summarise());
+        $this->assertStringNotContainsString('agrees', $result->summarise());
     }
 
     /**
@@ -66,9 +66,9 @@ final class ReconciliationResultTest extends TestCase
             skipped: 100
         );
 
-        self::assertFalse($result->isClean());
-        self::assertTrue($result->isInconclusive());
-        self::assertStringContainsString('100 could not be examined', $result->summarise());
+        $this->assertFalse($result->isClean());
+        $this->assertTrue($result->isInconclusive());
+        $this->assertStringContainsString('100 could not be examined', $result->summarise());
     }
 
     /**
@@ -87,10 +87,10 @@ final class ReconciliationResultTest extends TestCase
 
         $summary = $result->summarise();
 
-        self::assertFalse($result->isClean());
-        self::assertStringContainsString('Examined 400', $summary);
-        self::assertStringContainsString('1 disagreed', $summary);
-        self::assertStringContainsString('100 further SKU(s) could not be examined', $summary);
+        $this->assertFalse($result->isClean());
+        $this->assertStringContainsString('Examined 400', $summary);
+        $this->assertStringContainsString('1 disagreed', $summary);
+        $this->assertStringContainsString('100 further SKU(s) could not be examined', $summary);
     }
 
     public function testDisagreementOnACompleteRunIsNotInconclusive(): void
@@ -103,8 +103,8 @@ final class ReconciliationResultTest extends TestCase
             skipped: 0
         );
 
-        self::assertFalse($result->isClean());
-        self::assertFalse($result->isInconclusive());
+        $this->assertFalse($result->isClean());
+        $this->assertFalse($result->isInconclusive());
     }
 
     private function discrepancy(): Discrepancy

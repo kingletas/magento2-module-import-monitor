@@ -17,25 +17,25 @@ class AlertMessageTest extends TestCase
 {
     public function testItCountsWhatItIsAbout(): void
     {
-        self::assertSame(2, $this->message()->count());
-        self::assertSame(0, (new AlertMessage('All clear', [], '2026-08-26 06:00:00'))->count());
+        $this->assertSame(2, $this->message()->count());
+        $this->assertSame(0, (new AlertMessage('All clear', [], '2026-08-26 06:00:00'))->count());
     }
 
     public function testThePlainTextRenderingLeadsWithTheSubjectAndTheTime(): void
     {
         $lines = explode("\n", $this->message()->toPlainText());
 
-        self::assertStringContainsString('Import monitor: 2 failing checks', $lines[0]);
-        self::assertStringContainsString('2026-08-26 06:00:00', $lines[0]);
+        $this->assertStringContainsString('Import monitor: 2 failing checks', $lines[0]);
+        $this->assertStringContainsString('2026-08-26 06:00:00', $lines[0]);
     }
 
     public function testEveryItemBecomesItsOwnLine(): void
     {
         $lines = explode("\n", $this->message()->toPlainText());
 
-        self::assertCount(3, $lines);
-        self::assertStringContainsString('No feed file for today.', $lines[1]);
-        self::assertStringContainsString('Nightly import is stuck.', $lines[2]);
+        $this->assertCount(3, $lines);
+        $this->assertStringContainsString('No feed file for today.', $lines[1]);
+        $this->assertStringContainsString('Nightly import is stuck.', $lines[2]);
     }
 
     /**
@@ -44,7 +44,7 @@ class AlertMessageTest extends TestCase
      */
     public function testAnItemWithAnAcknowledgeLinkCarriesIt(): void
     {
-        self::assertStringContainsString(
+        $this->assertStringContainsString(
             'https://shop.test/ack/1',
             $this->message()->toPlainText()
         );
@@ -58,7 +58,7 @@ class AlertMessageTest extends TestCase
             '2026-08-26 06:00:00'
         );
 
-        self::assertStringNotContainsString('acknowledge:', $message->toPlainText());
+        $this->assertStringNotContainsString('acknowledge:', $message->toPlainText());
     }
 
     /**
@@ -67,8 +67,8 @@ class AlertMessageTest extends TestCase
      */
     public function testTheHostnameAppearsOnlyWhenOneWasGiven(): void
     {
-        self::assertStringNotContainsString('[', $this->message()->toPlainText());
-        self::assertStringContainsString('[web-01]', $this->message('web-01')->toPlainText());
+        $this->assertStringNotContainsString('[', $this->message()->toPlainText());
+        $this->assertStringContainsString('[web-01]', $this->message('web-01')->toPlainText());
     }
 
     /**
@@ -85,8 +85,8 @@ class AlertMessageTest extends TestCase
             ['store_id' => 2]
         );
 
-        self::assertSame(['store_id' => 2], $message->context);
-        self::assertStringNotContainsString('store_id', $message->toPlainText());
+        $this->assertSame(['store_id' => 2], $message->context);
+        $this->assertStringNotContainsString('store_id', $message->toPlainText());
     }
     private function message(?string $hostname = null): AlertMessage
     {

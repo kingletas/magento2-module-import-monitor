@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Reads a real file through the real driver.
  */
-final class CsvFeedReaderTest extends TestCase
+class CsvFeedReaderTest extends TestCase
 {
     /** @var string[] */
     private array $paths = [];
@@ -40,9 +40,9 @@ final class CsvFeedReaderTest extends TestCase
             . "SKU-2,A,A,1\n"
         );
 
-        self::assertCount(2, $skus);
-        self::assertSame('SKU-1', $skus[0]->sku);
-        self::assertSame(5.0, $skus[0]->quantity);
+        $this->assertCount(2, $skus);
+        $this->assertSame('SKU-1', $skus[0]->sku);
+        $this->assertSame(5.0, $skus[0]->quantity);
     }
 
     public function testRowsWithANonSellableStatusAreSkipped(): void
@@ -53,8 +53,8 @@ final class CsvFeedReaderTest extends TestCase
             . "SKU-2,D,A,5\n"
         );
 
-        self::assertCount(1, $skus);
-        self::assertSame('SKU-1', $skus[0]->sku);
+        $this->assertCount(1, $skus);
+        $this->assertSame('SKU-1', $skus[0]->sku);
     }
 
     public function testRowsWithNoQuantityAreSkippedWhenQuantityDecidesSellability(): void
@@ -65,8 +65,8 @@ final class CsvFeedReaderTest extends TestCase
             . "SKU-2,A,A,3\n"
         );
 
-        self::assertCount(1, $skus);
-        self::assertSame('SKU-2', $skus[0]->sku);
+        $this->assertCount(1, $skus);
+        $this->assertSame('SKU-2', $skus[0]->sku);
     }
 
     /**
@@ -90,8 +90,8 @@ final class CsvFeedReaderTest extends TestCase
             requirePositiveQty: false
         );
 
-        self::assertCount(1, $skus);
-        self::assertSame(0.0, $skus[0]->quantity);
+        $this->assertCount(1, $skus);
+        $this->assertSame(0.0, $skus[0]->quantity);
     }
 
     public function testAMissingSkuColumnIsRejected(): void
@@ -129,8 +129,8 @@ final class CsvFeedReaderTest extends TestCase
             . "SKU-1,A,A,5\n"
         );
 
-        self::assertCount(1, $skus);
-        self::assertSame('SKU-1', $skus[0]->sku);
+        $this->assertCount(1, $skus);
+        $this->assertSame('SKU-1', $skus[0]->sku);
     }
 
     /**

@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * A chunk that will not load is the interesting case here.
  */
-final class ReconcilerTest extends TestCase
+class ReconcilerTest extends TestCase
 {
     public function testEverySkuComparedCountsAsExaminedAndNoneAsSkipped(): void
     {
@@ -29,10 +29,10 @@ final class ReconcilerTest extends TestCase
             new ScriptedStateLoader([$this->salableStates(5)])
         )->reconcile('feed.csv');
 
-        self::assertSame(5, $result->read);
-        self::assertSame(5, $result->examined);
-        self::assertSame(0, $result->skipped);
-        self::assertTrue($result->isClean());
+        $this->assertSame(5, $result->read);
+        $this->assertSame(5, $result->examined);
+        $this->assertSame(0, $result->skipped);
+        $this->assertTrue($result->isClean());
     }
 
     /**
@@ -46,11 +46,11 @@ final class ReconcilerTest extends TestCase
             new ScriptedStateLoader([null])
         )->reconcile('feed.csv');
 
-        self::assertSame(5, $result->read);
-        self::assertSame(0, $result->examined);
-        self::assertSame(5, $result->skipped);
-        self::assertFalse($result->isClean());
-        self::assertTrue($result->isInconclusive());
+        $this->assertSame(5, $result->read);
+        $this->assertSame(0, $result->examined);
+        $this->assertSame(5, $result->skipped);
+        $this->assertFalse($result->isClean());
+        $this->assertTrue($result->isInconclusive());
     }
 
     /**
@@ -66,10 +66,10 @@ final class ReconcilerTest extends TestCase
             chunkSize: 2
         )->reconcile('feed.csv');
 
-        self::assertSame(5, $result->read);
-        self::assertSame(3, $result->examined);
-        self::assertSame(2, $result->skipped);
-        self::assertTrue($result->isInconclusive());
+        $this->assertSame(5, $result->read);
+        $this->assertSame(3, $result->examined);
+        $this->assertSame(2, $result->skipped);
+        $this->assertTrue($result->isInconclusive());
     }
 
     public function testTheFailureIsLoggedWithTheChunkSize(): void
@@ -79,8 +79,8 @@ final class ReconcilerTest extends TestCase
         $this->reconciler($this->feed(3), new ScriptedStateLoader([null]), logger: $logger)
             ->reconcile('feed.csv');
 
-        self::assertCount(1, $logger->errors);
-        self::assertStringContainsString('could not load Magento state', $logger->errors[0]);
+        $this->assertCount(1, $logger->errors);
+        $this->assertStringContainsString('could not load Magento state', $logger->errors[0]);
     }
 
     /**
@@ -93,8 +93,8 @@ final class ReconcilerTest extends TestCase
 
         $result = $this->reconciler($this->feed(5), $loader, chunkSize: 2)->reconcile('feed.csv');
 
-        self::assertSame(3, $loader->calls, 'All three chunks should have been attempted.');
-        self::assertSame(3, $result->examined);
+        $this->assertSame(3, $loader->calls, 'All three chunks should have been attempted.');
+        $this->assertSame(3, $result->examined);
     }
 
     public function testAnEmptyFeedIsReportedAsInconclusiveRatherThanAgreement(): void
@@ -102,9 +102,9 @@ final class ReconcilerTest extends TestCase
         $result = $this->reconciler(new ScriptedFeedReader([]), new ScriptedStateLoader())
             ->reconcile('feed.csv');
 
-        self::assertSame(0, $result->read);
-        self::assertFalse($result->isClean());
-        self::assertTrue($result->isInconclusive());
+        $this->assertSame(0, $result->read);
+        $this->assertFalse($result->isClean());
+        $this->assertTrue($result->isInconclusive());
     }
 
     private function reconciler(

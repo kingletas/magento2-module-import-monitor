@@ -63,16 +63,16 @@ class ReconcileSalabilityCommandTest extends TestCase
     {
         $tester = $this->tester();
 
-        self::assertSame(Command::INVALID, $tester->execute([]));
-        self::assertStringContainsString('--file is required', $tester->getDisplay());
-        self::assertSame([], $this->runs);
+        $this->assertSame(Command::INVALID, $tester->execute([]));
+        $this->assertStringContainsString('--file is required', $tester->getDisplay());
+        $this->assertSame([], $this->runs);
     }
 
     public function testTheFeedIsReconciledForTheRequestedWebsite(): void
     {
         $this->tester()->execute(['--file' => '/feeds/today.csv', '--website-id' => '2']);
 
-        self::assertSame([['file' => '/feeds/today.csv', 'websiteId' => 2]], $this->runs);
+        $this->assertSame([['file' => '/feeds/today.csv', 'websiteId' => 2]], $this->runs);
     }
 
     /**
@@ -83,7 +83,7 @@ class ReconcileSalabilityCommandTest extends TestCase
     {
         $this->tester()->execute(['--file' => '/feeds/today.csv']);
 
-        self::assertNull($this->runs[0]['websiteId']);
+        $this->assertNull($this->runs[0]['websiteId']);
     }
 
     /**
@@ -97,9 +97,9 @@ class ReconcileSalabilityCommandTest extends TestCase
         $tester = $this->tester();
         $tester->execute(['--file' => '/feeds/today.csv']);
 
-        self::assertStringContainsString('SKU-1', $tester->getDisplay());
-        self::assertStringContainsString('SKU-2', $tester->getDisplay());
-        self::assertStringContainsString(DiscrepancyReason::OutOfStock->value, $tester->getDisplay());
+        $this->assertStringContainsString('SKU-1', $tester->getDisplay());
+        $this->assertStringContainsString('SKU-2', $tester->getDisplay());
+        $this->assertStringContainsString(DiscrepancyReason::OutOfStock->value, $tester->getDisplay());
     }
 
     /**
@@ -116,8 +116,8 @@ class ReconcileSalabilityCommandTest extends TestCase
         $tester = $this->tester();
         $tester->execute(['--file' => '/feeds/today.csv', '--limit' => '3']);
 
-        self::assertStringContainsString('and 7 more', $tester->getDisplay());
-        self::assertStringContainsString('--limit', $tester->getDisplay());
+        $this->assertStringContainsString('and 7 more', $tester->getDisplay());
+        $this->assertStringContainsString('--limit', $tester->getDisplay());
     }
 
     public function testAZeroLimitPrintsEverything(): void
@@ -130,23 +130,23 @@ class ReconcileSalabilityCommandTest extends TestCase
         $tester = $this->tester();
         $tester->execute(['--file' => '/feeds/today.csv', '--limit' => '0']);
 
-        self::assertStringContainsString('SKU-10', $tester->getDisplay());
-        self::assertStringNotContainsString('more (raise', $tester->getDisplay());
+        $this->assertStringContainsString('SKU-10', $tester->getDisplay());
+        $this->assertStringNotContainsString('more (raise', $tester->getDisplay());
     }
 
     public function testACleanRunExitsZeroAndSaysWhatItExamined(): void
     {
         $tester = $this->tester();
 
-        self::assertSame(Command::SUCCESS, $tester->execute(['--file' => '/feeds/today.csv']));
-        self::assertStringContainsString('Magento agrees on all of them', $tester->getDisplay());
+        $this->assertSame(Command::SUCCESS, $tester->execute(['--file' => '/feeds/today.csv']));
+        $this->assertStringContainsString('Magento agrees on all of them', $tester->getDisplay());
     }
 
     public function testADisagreeingRunExitsNonZero(): void
     {
         $this->discrepancies = [$this->discrepancy('SKU-1')];
 
-        self::assertSame(Command::FAILURE, $this->tester()->execute(['--file' => '/feeds/today.csv']));
+        $this->assertSame(Command::FAILURE, $this->tester()->execute(['--file' => '/feeds/today.csv']));
     }
 
     /**
@@ -160,9 +160,9 @@ class ReconcileSalabilityCommandTest extends TestCase
 
         $tester = $this->tester();
 
-        self::assertSame(Command::FAILURE, $tester->execute(['--file' => '/feeds/today.csv']));
-        self::assertStringContainsString('nothing was reconciled', $tester->getDisplay());
-        self::assertStringNotContainsString('agrees on all of them', $tester->getDisplay());
+        $this->assertSame(Command::FAILURE, $tester->execute(['--file' => '/feeds/today.csv']));
+        $this->assertStringContainsString('nothing was reconciled', $tester->getDisplay());
+        $this->assertStringNotContainsString('agrees on all of them', $tester->getDisplay());
     }
 
     public function testAnEmptyFeedIsInconclusiveRatherThanClean(): void
@@ -172,8 +172,8 @@ class ReconcileSalabilityCommandTest extends TestCase
 
         $tester = $this->tester();
 
-        self::assertSame(Command::FAILURE, $tester->execute(['--file' => '/feeds/today.csv']));
-        self::assertStringContainsString('No sellable SKUs were found in the feed', $tester->getDisplay());
+        $this->assertSame(Command::FAILURE, $tester->execute(['--file' => '/feeds/today.csv']));
+        $this->assertStringContainsString('No sellable SKUs were found in the feed', $tester->getDisplay());
     }
 
     /**
@@ -188,8 +188,8 @@ class ReconcileSalabilityCommandTest extends TestCase
         $tester = $this->tester();
         $tester->execute(['--file' => '/feeds/today.csv']);
 
-        self::assertStringContainsString('1 disagreed', $tester->getDisplay());
-        self::assertStringContainsString('4 further SKU(s) could not be examined', $tester->getDisplay());
+        $this->assertStringContainsString('1 disagreed', $tester->getDisplay());
+        $this->assertStringContainsString('4 further SKU(s) could not be examined', $tester->getDisplay());
     }
 
     public function testAFailedRunIsReportedAndExitsNonZero(): void
@@ -198,9 +198,9 @@ class ReconcileSalabilityCommandTest extends TestCase
 
         $tester = $this->tester();
 
-        self::assertSame(Command::FAILURE, $tester->execute(['--file' => '/feeds/today.csv']));
-        self::assertStringContainsString('Reconciliation failed', $tester->getDisplay());
-        self::assertStringContainsString('feed file is not readable', $tester->getDisplay());
+        $this->assertSame(Command::FAILURE, $tester->execute(['--file' => '/feeds/today.csv']));
+        $this->assertStringContainsString('Reconciliation failed', $tester->getDisplay());
+        $this->assertStringContainsString('feed file is not readable', $tester->getDisplay());
     }
 
     /**
@@ -211,7 +211,7 @@ class ReconcileSalabilityCommandTest extends TestCase
     {
         $this->tester()->execute(['--file' => '/feeds/today.csv']);
 
-        self::assertSame(['get', 'set:' . Area::AREA_ADMINHTML], $this->areaCalls);
+        $this->assertSame(['get', 'set:' . Area::AREA_ADMINHTML], $this->areaCalls);
     }
 
     /**
@@ -224,7 +224,7 @@ class ReconcileSalabilityCommandTest extends TestCase
 
         $this->tester()->execute(['--file' => '/feeds/today.csv']);
 
-        self::assertSame(['get'], $this->areaCalls);
+        $this->assertSame(['get'], $this->areaCalls);
     }
 
     private function discrepancy(string $sku): Discrepancy

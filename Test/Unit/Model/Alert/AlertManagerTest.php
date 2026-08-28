@@ -25,7 +25,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * What turns a failed check into an alert, once.
  */
-final class AlertManagerTest extends TestCase
+class AlertManagerTest extends TestCase
 {
     private const string SECTION = 'commerce_importmonitor';
 
@@ -63,9 +63,9 @@ final class AlertManagerTest extends TestCase
 
     public function testADisabledModuleRecordsNothingAtAll(): void
     {
-        $this->resource->expects(self::never())->method('recordOccurrence');
+        $this->resource->expects($this->never())->method('recordOccurrence');
 
-        self::assertSame(0, $this->manager(enabled: false)->process([$this->failure('feed missing')]));
+        $this->assertSame(0, $this->manager(enabled: false)->process([$this->failure('feed missing')]));
     }
 
     /**
@@ -79,8 +79,8 @@ final class AlertManagerTest extends TestCase
             $this->failure('feed missing'),
         ]);
 
-        self::assertCount(1, $this->recorded);
-        self::assertSame('feed missing', $this->recorded[0]['message']);
+        $this->assertCount(1, $this->recorded);
+        $this->assertSame('feed missing', $this->recorded[0]['message']);
     }
 
     /**
@@ -92,17 +92,17 @@ final class AlertManagerTest extends TestCase
         $repeat = $this->failure('salability drifted', 'b');
         $this->newlyRaised = [(string) $new->fingerprint];
 
-        $this->dispatcher->expects(self::once())->method('dispatchRaised');
+        $this->dispatcher->expects($this->once())->method('dispatchRaised');
 
-        self::assertSame(1, $this->manager()->process([$new, $repeat]));
-        self::assertCount(2, $this->recorded);
+        $this->assertSame(1, $this->manager()->process([$new, $repeat]));
+        $this->assertCount(2, $this->recorded);
     }
 
     public function testNothingNewMeansNoNotification(): void
     {
-        $this->dispatcher->expects(self::never())->method('dispatchRaised');
+        $this->dispatcher->expects($this->never())->method('dispatchRaised');
 
-        self::assertSame(0, $this->manager()->process([$this->failure('feed missing')]));
+        $this->assertSame(0, $this->manager()->process([$this->failure('feed missing')]));
     }
 
     /**
@@ -115,8 +115,8 @@ final class AlertManagerTest extends TestCase
 
         $this->manager()->process([$this->failure('feed missing')]);
 
-        self::assertCount(1, $this->logger->infos);
-        self::assertStringContainsString('2 alert(s) resolved', $this->logger->infos[0]);
+        $this->assertCount(1, $this->logger->infos);
+        $this->assertStringContainsString('2 alert(s) resolved', $this->logger->infos[0]);
     }
 
     private function failure(string $message, string $seed = 'seed'): CheckResult

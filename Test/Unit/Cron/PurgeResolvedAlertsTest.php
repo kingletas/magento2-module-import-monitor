@@ -54,7 +54,7 @@ class PurgeResolvedAlertsTest extends TestCase
     {
         $this->cron()->execute();
 
-        self::assertCount(1, $this->cutoffs);
+        $this->assertCount(1, $this->cutoffs);
     }
 
     /**
@@ -65,8 +65,8 @@ class PurgeResolvedAlertsTest extends TestCase
         $before = time();
         $this->cron(retentionDays: 7)->execute();
 
-        self::assertCount(1, $this->cutoffTimestamps);
-        self::assertEqualsWithDelta($before - 7 * 86400, $this->cutoffTimestamps[0], 5);
+        $this->assertCount(1, $this->cutoffTimestamps);
+        $this->assertEqualsWithDelta($before - 7 * 86400, $this->cutoffTimestamps[0], 5);
     }
 
     public function testAnUnconfiguredStoreGetsTheDefaultWindow(): void
@@ -74,7 +74,7 @@ class PurgeResolvedAlertsTest extends TestCase
         $before = time();
         $this->cron()->execute();
 
-        self::assertEqualsWithDelta(
+        $this->assertEqualsWithDelta(
             $before - Config::DEFAULT_RETENTION_DAYS * 86400,
             $this->cutoffTimestamps[0],
             5
@@ -89,8 +89,8 @@ class PurgeResolvedAlertsTest extends TestCase
     {
         $this->cron()->execute();
 
-        self::assertCount(1, $this->logger->infos);
-        self::assertStringContainsString('4', $this->logger->infos[0]);
+        $this->assertCount(1, $this->logger->infos);
+        $this->assertStringContainsString('4', $this->logger->infos[0]);
     }
 
     /**
@@ -103,7 +103,7 @@ class PurgeResolvedAlertsTest extends TestCase
 
         $this->cron()->execute();
 
-        self::assertSame([], $this->logger->infos);
+        $this->assertSame([], $this->logger->infos);
     }
 
     public function testAFailingSweepIsLoggedRatherThanThrownAtCron(): void
@@ -114,9 +114,9 @@ class PurgeResolvedAlertsTest extends TestCase
 
         $this->cron()->execute();
 
-        self::assertCount(1, $this->logger->errors);
-        self::assertStringContainsString('cleanup failed', $this->logger->errors[0]);
-        self::assertSame([], $this->logger->infos);
+        $this->assertCount(1, $this->logger->errors);
+        $this->assertStringContainsString('cleanup failed', $this->logger->errors[0]);
+        $this->assertSame([], $this->logger->infos);
     }
 
     private function cron(?int $retentionDays = null): PurgeResolvedAlerts

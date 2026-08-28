@@ -24,15 +24,15 @@ class AcknowledgeFormTest extends TestCase
 
     public function testItIsUsableAsALayoutViewModel(): void
     {
-        self::assertInstanceOf(ArgumentInterface::class, $this->viewModel());
+        $this->assertInstanceOf(ArgumentInterface::class, $this->viewModel());
     }
 
     public function testTheAlertIdAndTokenComeFromTheLink(): void
     {
         $form = $this->viewModel();
 
-        self::assertSame(9, $form->getAlertId());
-        self::assertSame('abc123', $form->getToken());
+        $this->assertSame(9, $form->getAlertId());
+        $this->assertSame('abc123', $form->getToken());
     }
 
     /**
@@ -43,11 +43,11 @@ class AcknowledgeFormTest extends TestCase
     {
         $this->params['id'] = '9 OR 1=1';
 
-        self::assertSame(9, $this->viewModel()->getAlertId());
+        $this->assertSame(9, $this->viewModel()->getAlertId());
 
         $this->params['id'] = 'nine';
 
-        self::assertSame(0, $this->viewModel()->getAlertId());
+        $this->assertSame(0, $this->viewModel()->getAlertId());
     }
 
     /**
@@ -56,16 +56,16 @@ class AcknowledgeFormTest extends TestCase
      */
     public function testALinkMissingEitherHalfIsNotUsable(): void
     {
-        self::assertTrue($this->viewModel()->hasUsableLink());
+        $this->assertTrue($this->viewModel()->hasUsableLink());
 
         $this->params = ['id' => '9', 'token' => ''];
-        self::assertFalse($this->viewModel()->hasUsableLink());
+        $this->assertFalse($this->viewModel()->hasUsableLink());
 
         $this->params = ['id' => '0', 'token' => 'abc123'];
-        self::assertFalse($this->viewModel()->hasUsableLink());
+        $this->assertFalse($this->viewModel()->hasUsableLink());
 
         $this->params = [];
-        self::assertFalse($this->viewModel()->hasUsableLink());
+        $this->assertFalse($this->viewModel()->hasUsableLink());
     }
 
     /**
@@ -75,12 +75,12 @@ class AcknowledgeFormTest extends TestCase
     public function testTheConfirmationIsPostedOverHttps(): void
     {
         $urlBuilder = $this->createMock(UrlInterface::class);
-        $urlBuilder->expects(self::once())
+        $urlBuilder->expects($this->once())
             ->method('getUrl')
             ->with('importmonitor/alerts/confirm', ['_secure' => true])
             ->willReturn('https://shop.test/importmonitor/alerts/confirm/');
 
-        self::assertSame(
+        $this->assertSame(
             'https://shop.test/importmonitor/alerts/confirm/',
             $this->viewModel($urlBuilder)->getConfirmUrl()
         );
@@ -94,7 +94,7 @@ class AcknowledgeFormTest extends TestCase
     {
         $this->params['token'] = 'abc"><script>alert(1)</script>';
 
-        self::assertSame('abc"><script>alert(1)</script>', $this->viewModel()->getToken());
+        $this->assertSame('abc"><script>alert(1)</script>', $this->viewModel()->getToken());
     }
 
     private function viewModel(?UrlInterface $urlBuilder = null): AcknowledgeForm
