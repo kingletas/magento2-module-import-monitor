@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 /**
- * A chunk that will not load is the interesting case here.
+ * A chunk that will not load is counted as skipped rather than examined.
  */
 class ReconcilerTest extends TestCase
 {
