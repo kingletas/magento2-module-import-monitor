@@ -11,6 +11,7 @@ namespace Commerce\ImportMonitor\Console\Command;
 
 use Commerce\ImportMonitor\Model\Salability\Discrepancy;
 use Commerce\ImportMonitor\Model\Salability\Reconciler;
+use Commerce\ImportMonitor\Model\Salability\ReconciliationResult;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Symfony\Component\Console\Command\Command;
@@ -97,7 +98,14 @@ class ReconcileSalabilityCommand extends Command
 
         $output->writeln('');
 
-        // Three outcomes, three exit codes.
+        return $this->summarise($result, $output);
+    }
+
+    /**
+     * Three outcomes, three exit codes.
+     */
+    private function summarise(ReconciliationResult $result, OutputInterface $output): int
+    {
         if ($result->isInconclusive()) {
             $output->writeln(sprintf('<comment>%s</comment>', $result->summarise()));
 
