@@ -32,7 +32,7 @@ class AlertMessageHtmlRenderer
                 $row .= sprintf(
                     ' | <a href="%s">%s</a>',
                     $this->escaper->escapeUrl($item['acknowledge_url']),
-                    $this->escaper->escapeHtml(__('Acknowledge'))
+                    $this->escaper->escapeHtml((string) __('Acknowledge'))
                 );
             }
 

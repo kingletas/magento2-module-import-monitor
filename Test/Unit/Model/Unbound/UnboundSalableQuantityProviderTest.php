@@ -70,6 +70,5 @@ class UnboundSalableQuantityProviderTest extends TestCase
                 // The throw is the subject of another test; here it is noise.
             }
         }
-
     }
 }
