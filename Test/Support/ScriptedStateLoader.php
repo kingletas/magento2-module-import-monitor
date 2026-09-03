@@ -16,7 +16,7 @@ use RuntimeException;
 /**
  * A state loader that answers from a map, and can be told to fail.
  *
- * @SuppressWarnings(PHPMD.MissingConstructor)
+ * @SuppressWarnings("PHPMD.MissingConstructor")
  */
 class ScriptedStateLoader extends ProductStateLoader
 {

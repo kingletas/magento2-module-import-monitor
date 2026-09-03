@@ -16,7 +16,7 @@ use Magento\Framework\Model\AbstractModel;
 /**
  * Magento requires the _construct() initialiser, which trips PHPMD naming.
  *
- * @SuppressWarnings(PHPMD.CamelCaseMethodName)
+ * @SuppressWarnings("PHPMD.CamelCaseMethodName")
  */
 class Alert extends AbstractModel implements AlertInterface
 {

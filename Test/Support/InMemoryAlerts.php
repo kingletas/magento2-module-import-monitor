@@ -15,7 +15,7 @@ use Commerce\ImportMonitor\Model\ResourceModel\Alert as AlertResource;
 /**
  * The alert table, in an array, with the de-duplication rule intact.
  *
- * @SuppressWarnings(PHPMD.MissingConstructor)
+ * @SuppressWarnings("PHPMD.MissingConstructor")
  */
 class InMemoryAlerts extends AlertResource
 {
